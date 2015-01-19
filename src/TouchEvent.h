@@ -34,9 +34,9 @@ public:
 	int id;
 	ofxUINode* receiver;			// the touch was first seen above this component
 	ofxUINode* lastSeenAbove;		// last node seen below this touch id
-	ofVec2f firstPosition;
-	ofVec2f position;
-	ofVec2f prevPosition;
+	ofVec2f position;				// global position of touch (call toLocal to get the local)
+	ofVec2f prevPosition;			// previous global position
+	ofVec2f firstPosition;			// global position of first touch down
 	ofVec2f velocity;
 	ofVec2f prevVelocity;
 	ofVec2f velocitySmoothed;

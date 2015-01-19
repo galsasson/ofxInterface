@@ -25,21 +25,27 @@ class ofxUINode : public ofNode
 public:
 	virtual ~ofxUINode();
 	ofxUINode();
-	virtual void update(float dt) {}
-	virtual void draw() {};		// draw object content in local space
+	virtual void update(float dt) {}	// please override!
+	virtual void draw() {};		// please override! draw object content in local space
 	virtual void drawDebug();	// debug drawing in global space (implementation should transform the matrix)
 	virtual void drawBounds() {};  // draw the bounds of the object in local space
 
-	// this will draw the scene (usually should be called only on the main scene object)
-	// but can be used also for offline rendering of decendents
+	// render will render this component and its subtree.
+	// usually should be called on the root scene object,
+	// but can be used also for offline rendering of every node in the graph
 	//
-	// rendering will start at the inverse of the current global-matrix
-	void renderSubtree(bool forceAll = false);
-	void renderSubtreeDebug();
+	// render is done as follows:
+	// 1. get list of subtree nodes (only visible ones if forceAll = false)
+	// 2. sort by plane value
+	// 3. call draw from back to front
+	void render(bool forceAll = false);
+	void renderDebug();	// same as render but calls drawDebug instead of draw.
 
+	// convenience for 2D
+	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
+	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }
 
-	ofRectangle getBounds();
-
+	// when rendering, nodes will be sorted by plane number
 	float getPlane() const { return plane; }
 	void setPlane(float _plane) { plane = _plane; }
 	float getGlobalPlane() const { return (parent == NULL)?plane:((ofxUINode*)parent)->getGlobalPlane()+plane;}

@@ -39,7 +39,7 @@ void ofxUINode::drawDebug()
 	ofSetLineWidth(1);
 	ofNoFill();
 	ofSetColor(debugBorderColor);
-//	ofDrawRectangle(getBounds());
+
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
 	debugBorderColor = debugBorderColor.lerp(ofColor(ofColor(200, 200, 0)), 0.05);
 
@@ -65,7 +65,7 @@ void ofxUINode::drawDebug()
 }
 
 
-void ofxUINode::renderSubtree(bool forceAll)
+void ofxUINode::render(bool forceAll)
 {
 //	ofPushMatrix();
 //	ofMultMatrix(getGlobalTransformMatrix().getInverse());
@@ -103,7 +103,7 @@ void ofxUINode::renderSubtree(bool forceAll)
 
 
 
-void ofxUINode::renderSubtreeDebug()
+void ofxUINode::renderDebug()
 {
 //	ofPushMatrix();
 //	ofMultMatrix(getGlobalTransformMatrix().getInverse());
@@ -134,12 +134,6 @@ void ofxUINode::renderSubtreeDebug()
 
 
 
-
-
-ofRectangle ofxUINode::getBounds()
-{
-	return ofRectangle(0, 0, size.x, size.y);
-}
 
 void ofxUINode::touchDown(int id,  TouchEvent* event)
 {
@@ -206,10 +200,10 @@ bool ofxUINode::contains(const ofVec2f &p)
 {
 	ofVec2f local = toLocal(p);
 
-	if (p.x < 0 ||
-		p.y < 0 ||
-		p.x > size.x ||
-		p.y > size.y) {
+	if (local.x < 0 ||
+		local.y < 0 ||
+		local.x > size.x ||
+		local.y > size.y) {
 		return false;
 	}
 
