@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __AnimationBreaker__BitmapTextButton__
-#define __AnimationBreaker__BitmapTextButton__
+#ifndef __ofxUINode__BitmapTextButton__
+#define __ofxUINode__BitmapTextButton__
 
 #include <stdio.h>
 #include "ofMain.h"
@@ -40,4 +40,4 @@ private:
 
 	string label;
 };
-#endif /* defined(__AnimationBreaker__BitmapTextButton__) */
+#endif /* defined(__ofxUINode__BitmapTextButton__) */
