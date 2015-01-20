@@ -24,7 +24,7 @@ public:
         return instance;
     }
 
-	void setup(ofxUINode* root);
+	void setup(ofxUINode* root, bool dispatchOnUpdate = false);
 	
 	void update(float dt);
 
@@ -47,8 +47,6 @@ public:
 	float velocitySmoothCoeff;
 	float touchHasMovedThreshold;
 	float touchVelocityDump;
-	bool bUpdateDispatch;
-
 
 	enum TouchActionType{ TOUCH_DOWN, TOUCH_MOVE, TOUCH_UP };
 
@@ -63,6 +61,8 @@ public:
 
 private:
 	ofxUINode *scene;
+	bool bUpdateDispatch;
+
 
 	void fillComponentsUnder(ofxUINode* root, const ofVec2f &p, std::list<ofxUINode*>& list);
 

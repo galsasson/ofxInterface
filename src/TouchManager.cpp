@@ -18,19 +18,20 @@ TouchManager::TouchManager()
 	bUpdateDispatch = false;
 }
 
-void TouchManager::setup(ofxUINode *root)
+void TouchManager::setup(ofxUINode *root, bool dispatchOnUpdate)
 {
 	scene = root;
+	bUpdateDispatch = dispatchOnUpdate;
 }
 
 void TouchManager::update(float dt)
 {
-//	ofLogNotice("TouchManager", "Touches[%d]:", touches.size());
+
+	// smooth velocity of touches
 	map<int, TouchEvent*>::iterator it = touches.begin();
 	for (;it!=touches.end(); it++)
 	{
 		(*it).second->velocitySmoothed *= touchVelocityDump;
-//		ofLogNotice("TouchManager", "  --> ID:%d", (*it).second->id);
 	}
 
 	if (bUpdateDispatch) {
