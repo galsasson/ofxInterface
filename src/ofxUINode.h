@@ -25,14 +25,46 @@ class ofxUINode : public ofNode
 public:
 	virtual ~ofxUINode();
 	ofxUINode();
-	virtual void update(float dt) {}	// please override!
-	virtual void draw() {};		// please override! draw object content in local space
-	virtual void drawDebug();	// debug drawing in global space (implementation should transform the matrix)
-	virtual void drawBounds() {};  // draw the bounds of the object in local space
+
+	// if you like naming your components (you should)
+	void setName(const std::string& _name) { name = _name; }
+	const std::string& getName() { return name; }
+
+	// scene-graph adding/removing children stuff
+	void addChild(ofxUINode* child, int insertAt = -1);		// append by default
+	ofxUINode* removeChild(ofxUINode *child);
+	ofxUINode* removeChild(int index);
+	ofxUINode* getChildWithName(const std::string& name, bool deepSearch = false) const;
+	int getNumChildren() const { return children.size(); }
+	const vector<ofxUINode*>& getChildren() const { return children; }
+
+
+	// functions to override
+	//
+	virtual void update(float dt) {}	// please override with update code
+	virtual void draw() {};		// please override! draw your object in local space
+
+	// for debugging
+	virtual void drawDebug();	 // debug debugging stuff (will be called by renderDebug)
+	virtual void drawBounds();   // ovveride for debugging if bounds are not rectangular
+
+	// for touch event handling
+	//
+	// override if your component is not rectangular
+	virtual bool contains(const ofVec2f& p);
+
+	// interaction events (register to these events and you're good to go)
+	ofEvent<TouchEvent> eventTouchDown;
+	ofEvent<TouchEvent> eventTouchMove;
+	ofEvent<TouchEvent> eventTouchUp;
+	ofEvent<TouchEvent> eventTouchExit;
+	ofEvent<TouchEvent> eventTouchEnter;
+	ofEvent<TouchEvent> eventClick;
+
 
 	// render will render this component and its subtree.
 	// usually should be called on the root scene object,
-	// but can be used also for offline rendering of every node in the graph
+	// but can be used also for offline rendering of any branch of the graph
 	//
 	// render is done as follows:
 	// 1. get list of subtree nodes (only visible ones if forceAll = false)
@@ -41,35 +73,34 @@ public:
 	void render(bool forceAll = false);
 	void renderDebug();	// same as render but calls drawDebug instead of draw.
 
-	// convenience for 2D
 	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }
 
-	// when rendering, nodes will be sorted by plane number
+	// when rendering, nodes will be sorted by plane number (its a float)
 	float getPlane() const { return plane; }
 	void setPlane(float _plane) { plane = _plane; }
 	float getGlobalPlane() const { return (parent == NULL)?plane:((ofxUINode*)parent)->getGlobalPlane()+plane;}
 
-	const ofVec2f& getSize() const { return size; }
+	// set your size!
+	// this is important for the default contains function
+	ofVec2f getSize() const { return size; }
 	void setSize(float w, float h) { size.set(w, h); }
 	void setSize(const ofVec2f& s) { size.set(s); }
 	float getWidth() const { return size.x; }
 	void setWidth(float w) { size.x = w; }
 	float getHeight() const { return size.y; }
 	void setHeight(float h) { size.y = h; }
-
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
 
-	// TouchListener
-	virtual void touchDown(int id, TouchEvent* event);
-	virtual void touchMove(int id,  TouchEvent* event);
-	virtual void touchUp(int id,  TouchEvent* event);
-	virtual void touchExit(int id, TouchEvent* event);
-	virtual void touchEnter(int id, TouchEvent* event);
+	// TouchManager will call these on touch events
+	void touchDown(int id, TouchEvent* event);
+	void touchMove(int id,  TouchEvent* event);
+	void touchUp(int id,  TouchEvent* event);
+	void touchExit(int id, TouchEvent* event);
+	void touchEnter(int id, TouchEvent* event);
 
 	ofVec2f toLocal(const ofVec2f& screenPoint);
-	virtual bool contains(const ofVec2f& p);
 
 	void setVisible(bool visible) { bVisible = visible; }
 	bool getVisible() const { return bVisible; }
@@ -78,13 +109,6 @@ public:
 
 	void activate() { setVisible(true); setEnabled(true); }
 	void deactivate() { setVisible(false); setEnabled(false); }
-
-	int getNumChildren() { return children.size(); }
-	const vector<ofxUINode*>& getChildren() { return children; }
-	void addChild(ofxUINode* child, int insertAt = -1);
-	ofxUINode* removeChild(ofxUINode *child);
-	ofxUINode* removeChild(int index);
-	ofxUINode* getChildWithName(const std::string& name, bool deepSearch = false);
 
 	// returns the component's depth in the scene-graph (how many ancestors).
 	int getDepthInScene() const
@@ -149,9 +173,8 @@ public:
 	// by calling takeNodeBack
 	virtual void takeNodeBack(ofxUINode* node) {};
 
-	virtual void setName(const std::string& _name) { name = _name; }
-	virtual const std::string& getName() { return name; }
 
+	// use this to hold any data
 	void setData(void* _data) { data = _data; }
 	void* getData() { return data; }
 
@@ -164,20 +187,7 @@ public:
 	void placeNextTo(const ofxUINode& comp, ofxUINode::Side side, float margin=0);
 
 
-	// events
-	ofEvent<TouchEvent> eventTouchDown;
-	ofEvent<TouchEvent> eventTouchMove;
-	ofEvent<TouchEvent> eventTouchUp;
-	ofEvent<TouchEvent> eventTouchExit;
-	ofEvent<TouchEvent> eventTouchEnter;
-	ofEvent<TouchEvent> eventClick;
-
-	
-	ofEvent<void> eventDestroy;
-
-
-	// HACKISH stuff
-	virtual void pop(bool animate) {};
+	ofEvent<void> eventDestroy;			// send this event in the destructor
 
 protected:
 	std::string name;

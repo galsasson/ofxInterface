@@ -40,7 +40,7 @@ void ofxUINode::drawDebug()
 	ofNoFill();
 	ofSetColor(debugBorderColor);
 
-	ofDrawRectangle(0, 0, getWidth(), getHeight());
+	drawBounds();
 	debugBorderColor = debugBorderColor.lerp(ofColor(ofColor(200, 200, 0)), 0.05);
 
 	// draw anchor
@@ -62,6 +62,11 @@ void ofxUINode::drawDebug()
 	ss<<name<<": "<<getGlobalPlane()<<"-"<<bVisible;
 	ofDrawBitmapString(ss.str(), 0, 0);
 #endif
+}
+
+void ofxUINode::drawBounds()
+{
+	ofDrawRectangle(0, 0, getWidth(), getHeight());
 }
 
 
@@ -216,7 +221,7 @@ void ofxUINode::addChild(ofxUINode *child, int insertAt)
 {
 	child->setParent(*this);
 
-	if (insertAt == -1) {
+	if (insertAt == -1 || insertAt > children.size()) {
 		// append
 		children.push_back(child);
 	}
@@ -252,7 +257,7 @@ ofxUINode* ofxUINode::removeChild(int index)
 }
 
 
-ofxUINode* ofxUINode::getChildWithName(const std::string &name, bool deepSearch)
+ofxUINode* ofxUINode::getChildWithName(const std::string &name, bool deepSearch) const
 {
 	ofxUINode* child = NULL;
 

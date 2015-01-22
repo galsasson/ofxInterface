@@ -26,7 +26,7 @@ public:
 
 	void setup(ofxUINode* root, bool dispatchOnUpdate = false);
 	
-	void update(float dt);
+	void update(float dt = 1.0f / ofGetFrameRate());
 
 	// go over the scene and send the event to the component
 	void touchDown(int id, const ofVec2f& p);
