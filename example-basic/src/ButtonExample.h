@@ -34,6 +34,8 @@ public:
 	ofColor color;
 	ofVec2f touchAnchor;
 
+	bool bTouched;
+
 };
 
 #endif /* defined(__example_basic__ButtonExample__) */

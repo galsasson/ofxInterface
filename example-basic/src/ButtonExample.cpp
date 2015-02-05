@@ -18,6 +18,7 @@ void ButtonExample::setup(float x, float y, float w, float h)
 	setSize(w, h);
 
 	color = ofColor(100);
+	bTouched = false;
 
 	/*****
 	 * register for touch events
@@ -40,6 +41,12 @@ void ButtonExample::draw()
 	ofSetColor(color);
 	ofNoFill();
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
+
+	if (bTouched) {
+		ofSetColor(150, 200, 255);
+		ofFill();
+		ofDrawEllipse(touchAnchor, 10, 10);
+	}
 }
 
 
@@ -52,6 +59,7 @@ void ButtonExample::onTouchDown(ofxInterface::TouchEvent &event)
 	ofVec2f local = toLocal(event.position);
 
 	color = ofColor(255);
+	bTouched = true;
 
 	touchAnchor = local;
 }
@@ -61,6 +69,7 @@ void ButtonExample::onTouchUp(ofxInterface::TouchEvent &event)
 	ofVec2f local = toLocal(event.position);
 
 	color = ofColor(100);
+	bTouched = false;
 }
 
 

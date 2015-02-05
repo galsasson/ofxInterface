@@ -32,18 +32,20 @@ void ofApp::setup(){
 	int perRow = 10;
 	for (int i=0; i<perRow*4; i++) {
 
+		// setup them in a grid
 		float x = 150 + (i%perRow)*(size+pad);
 		float y = 250 + (i/perRow)*(size+pad);
+
+		// create a ButtonExample node
 		ButtonExample *btn = new ButtonExample();
 		btn->setup(x, y, 40+size-ofRandom(20), size+ofRandom(30));
 		btn->setName("btn" + ofToString(i));
-		btn->setPlane(ofRandom(1));
 
-		// add to the scene
+		// add it to the scene
 		scene->addChild(btn);
 
 		if (i%perRow>0) {
-			// this can be called to place nodes next to their edge
+			// this can be called to place nodes next to each other
 			btn->placeNextTo(*buttons[i-1], Node::RIGHT);
 		}
 
