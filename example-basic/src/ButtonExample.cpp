@@ -22,6 +22,8 @@ void ButtonExample::setup(float x, float y, float w, float h)
 
 	/*****
 	 * register for touch events
+	 *
+	 * TouchManager will notify these automatically
 	 */
 	ofAddListener(eventTouchDown, this, &ButtonExample::onTouchDown);
 	ofAddListener(eventTouchUp, this, &ButtonExample::onTouchUp);

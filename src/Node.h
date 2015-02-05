@@ -54,10 +54,14 @@ public:
 	virtual void drawDebug();	 // debug debugging stuff (will be called by renderDebug)
 	virtual void drawBounds();   // ovveride for debugging if bounds are not rectangular
 
-	// for touch event handling
-	//
-	// override if your component is not rectangular
-	virtual bool contains(const ofVec2f& p);
+	/******
+	 * for touch event handling
+	 *
+	 * override to return if a point is inside the node.
+	 * default implementation works only if your component is 
+	 * rectangular.
+	 */
+	virtual bool contains(const ofVec2f& globalPoint);
 
 	// interaction events (register to these events and you're good to go)
 	ofEvent<TouchEvent> eventTouchDown;
@@ -68,14 +72,16 @@ public:
 	ofEvent<TouchEvent> eventClick;
 
 
-	// render will render this component and its subtree.
-	// usually should be called on the root scene object,
-	// but can be used also for offline rendering of any branch of the graph
-	//
-	// render is done as follows:
-	// 1. get list of subtree nodes (only visible ones if forceAll = false)
-	// 2. sort by plane value
-	// 3. call draw from back to front
+	/******
+	 * render will render this component and its subtree.
+	 * usually should be called on the root scene object,
+	 * but can be used also for offline rendering of any branch of the graph
+	 *
+	 * render is done as follows:
+	 * 1. get list of subtree nodes (only visible ones if forceAll = false)
+	 * 2. sort by plane value
+	 * 3. call draw from back to front
+	 */
 	void render(bool forceAll = false);
 	void renderDebug();	// same as render but calls drawDebug instead of draw.
 

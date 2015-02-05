@@ -95,7 +95,7 @@ void ofApp::draw(){
 
 
 	ofSetColor(255);
-	ofDrawBitmapString("hit 'd' to toggle renderDebug", 5, ofGetHeight()-8);
+	ofDrawBitmapString("hit 'd' to toggle debug rendering", 5, ofGetHeight()-8);
 }
 
 //--------------------------------------------------------------

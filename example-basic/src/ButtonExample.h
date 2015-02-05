@@ -16,6 +16,25 @@
 
 using namespace ofxInterface;
 
+/******
+ * This is ButtonExample
+ * It's a button that can be dragged around
+ *
+ * ofxInterface::Node is a subclass of ofNode with additional 
+ * features.
+ *
+ * The two most important features are:
+ *
+ * 1. the 'draw' function: override it to draw your ui component,
+ *    in local space, will be called by 'render'.
+ *
+ * 2. the 'contains' function: override to return if a point is inside the
+ *    component. If your component is rectangular you do not have to provide 
+ *    your own contains function, instead, call 'setSize()' on setup
+ *    and the default implementation of 'contains' will take care of that.
+ *
+ */
+
 class ButtonExample : public ofxInterface::Node
 {
 

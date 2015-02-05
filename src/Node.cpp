@@ -210,9 +210,9 @@ ofVec2f Node::toLocal(const ofVec2f &screenPoint)
 	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
 }
 
-bool Node::contains(const ofVec2f &p)
+bool Node::contains(const ofVec2f &globalPoint)
 {
-	ofVec2f local = toLocal(p);
+	ofVec2f local = toLocal(globalPoint);
 
 	if (local.x < 0 ||
 		local.y < 0 ||
