@@ -14,7 +14,10 @@
 
 #include "ofxInterface.h"
 
-class BitmapTextButton : public ofxInterface::Node
+namespace ofxInterface
+{
+
+class BitmapTextButton : public Node
 {
 public:
 
@@ -40,4 +43,7 @@ private:
 
 	string label;
 };
+
+}	// namespace
+
 #endif /* defined(__ofxUINode__BitmapTextButton__) */

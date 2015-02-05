@@ -8,6 +8,10 @@
 
 #include "TextureButton.h"
 
+namespace ofxInterface
+{
+
+
 TextureButton::TextureButton()
 {
 	texture = NULL;
@@ -62,3 +66,5 @@ void TextureButton::draw()
 		ofDrawRectangle(0, 0, getWidth(), getHeight());
 	}
 }
+
+}	// namespace

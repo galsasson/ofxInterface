@@ -8,6 +8,8 @@
 
 #include "BitmapTextButton.h"
 
+namespace ofxInterface
+{
 
 void BitmapTextButton::setup(const string &_label)
 {
@@ -36,3 +38,5 @@ void BitmapTextButton::draw()
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
 }
 
+
+} 	// namespace

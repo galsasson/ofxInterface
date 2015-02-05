@@ -13,7 +13,10 @@
 #include "ofMain.h"
 #include "ofxInterface.h"
 
-class TextureButton : public ofxInterface::Node
+namespace ofxInterface
+{
+
+class TextureButton : public Node
 {
 public:
 	TextureButton();
@@ -46,5 +49,7 @@ private:
 
 	ofTexture* texture;
 };
+
+}	// namespace
 
 #endif /* defined(__BaseApp__TextureButton__) */
