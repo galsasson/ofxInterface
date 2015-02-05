@@ -1,6 +1,6 @@
 //
 //  TextureButton.cpp
-//  BaseApp
+//  ofxInterface
 //
 //  Created by Gal Sasson on 7/24/14.
 //

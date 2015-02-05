@@ -7,8 +7,10 @@
 //
 
 #include "TouchManager.h"
-//#include "ofxRemoteUIServer.h"
 #include "TouchEvent.h"
+
+namespace ofxInterface {
+
 
 TouchManager::TouchManager()
 {
@@ -18,7 +20,23 @@ TouchManager::TouchManager()
 	bUpdateDispatch = false;
 }
 
-void TouchManager::setup(ofxUINode *root, bool dispatchOnUpdate)
+TouchManager::~TouchManager()
+{
+	if (scene == NULL) {
+		return;
+	}
+
+	// do not send destroy event
+	std::list<Node*> list;
+	scene->getSubTreeList(list);
+	for (Node* n: list)
+	{
+		n->bSendDestroy = false;
+	}
+
+}
+
+void TouchManager::setup(Node *root, bool dispatchOnUpdate)
 {
 	scene = root;
 	bUpdateDispatch = dispatchOnUpdate;
@@ -108,7 +126,7 @@ void TouchManager::dispatchTouchDown(int id, const ofVec2f& p)
 	event->firstPosition = event->position = event->prevPosition = p;
 	touches[id] = event;
 
-	ofxUINode *node = getComponentUnder(p);
+	Node *node = getComponentUnder(p);
 	if (node == NULL) {
 		ofLogError("TouchManager","could not find node for touchDown");
 		return;
@@ -156,7 +174,7 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 	}
 
 	// find node below touch point
-	ofxUINode *node = getComponentUnder(p);
+	Node *node = getComponentUnder(p);
 	if (node == NULL) {
 		ofLogError("TouchManager","could not find node for touchMove");
 		return;
@@ -213,7 +231,7 @@ void TouchManager::dispatchTouchUp(int id, const ofVec2f &p)
 		event->velocitySmoothed += (event->velocity-event->velocitySmoothed)*velocitySmoothCoeff;
 	}
 
-	ofxUINode* node = getComponentUnder(p);
+	Node* node = getComponentUnder(p);
 	if (node == NULL) {
 		ofLogError("TouchManager","could not find node for touchUp");
 		endTouch(id);
@@ -238,13 +256,13 @@ void TouchManager::endTouch(int id)
 	delete te;
 }
 
-ofxUINode* TouchManager::getComponentUnder(const ofVec2f &p)
+Node* TouchManager::getComponentUnder(const ofVec2f &p)
 {
 	if (!scene) {
 		return NULL;
 	}
 
-	std::list<ofxUINode*> compList = getAllComponentsUnder(p);
+	std::list<Node*> compList = getAllComponentsUnder(p);
 	if (compList.size() == 0) {
 		return scene;
 	}
@@ -252,15 +270,15 @@ ofxUINode* TouchManager::getComponentUnder(const ofVec2f &p)
 	return *compList.begin();
 }
 
-std::list<ofxUINode*> TouchManager::getAllComponentsUnder(const ofVec2f &p)
+std::list<Node*> TouchManager::getAllComponentsUnder(const ofVec2f &p)
 {
-	std::list<ofxUINode*> list;
+	std::list<Node*> list;
 	fillComponentsUnder(scene, p, list);
-	list.sort(ofxUINode::topPlaneFirst);
+	list.sort(Node::topPlaneFirst);
 	return list;
 }
 
-void TouchManager::fillComponentsUnder(ofxUINode* root, const ofVec2f &p, std::list<ofxUINode *> &list)
+void TouchManager::fillComponentsUnder(Node* root, const ofVec2f &p, std::list<Node *> &list)
 {
 	if (root == NULL || !root->getEnabled()) {
 		return;
@@ -275,7 +293,7 @@ void TouchManager::fillComponentsUnder(ofxUINode* root, const ofVec2f &p, std::l
 	}
 }
 
-
+} // namespace
 
 
 

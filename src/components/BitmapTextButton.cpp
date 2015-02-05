@@ -1,6 +1,6 @@
 //
 //  BitmapTextButton.cpp
-//  AnimationBreaker
+//  ofxInterface
 //
 //  Created by Gal Sasson on 1/19/15.
 //

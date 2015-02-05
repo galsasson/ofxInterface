@@ -8,7 +8,9 @@
 
 #include "TouchEvent.h"
 
-#include "ofxUINode.h"
+#include "Node.h"
+
+namespace ofxInterface {
 
 TouchEvent::TouchEvent() : 
 	id(0),
@@ -34,7 +36,7 @@ TouchEvent::~TouchEvent()
 	}
 }
 
-void TouchEvent::setReceiver(ofxUINode* comp)
+void TouchEvent::setReceiver(Node* comp)
 {
 	if (receiver != NULL) {
 		ofRemoveListener(receiver->eventDestroy, this, &TouchEvent::onComponentDestroyed);
@@ -44,3 +46,4 @@ void TouchEvent::setReceiver(ofxUINode* comp)
 	ofAddListener(receiver->eventDestroy, this, &TouchEvent::onComponentDestroyed);
 }
 
+} // namespace

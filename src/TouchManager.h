@@ -12,7 +12,10 @@
 #include <iostream>
 #include "ofMain.h"
 
-#include "ofxUINode.h"
+#include "Node.h"
+
+namespace ofxInterface
+{
 
 class TouchManager
 {
@@ -24,10 +27,13 @@ public:
         return instance;
     }
 
-	void setup(ofxUINode* root, bool dispatchOnUpdate = false);
+	void setup(Node* root, bool dispatchOnUpdate = false);
 	
 	void update(float dt = 1.0f / ofGetFrameRate());
 
+	/******
+	 * touch events
+	 */
 	// go over the scene and send the event to the component
 	void touchDown(int id, const ofVec2f& p);
 	void touchMove(int id, const ofVec2f& p);
@@ -38,9 +44,9 @@ public:
 	void dispatchTouchUp(int id, const ofVec2f& p);
 
 	// get top-most component under point
-	ofxUINode* getComponentUnder(const ofVec2f &p);
+	Node* getComponentUnder(const ofVec2f &p);
 	// returns a list of all components under p (top most first)
-	std::list<ofxUINode*> getAllComponentsUnder(const ofVec2f &p);
+	std::list<Node*> getAllComponentsUnder(const ofVec2f &p);
 
 	void endTouch(int id);
 
@@ -60,11 +66,11 @@ public:
     };
 
 private:
-	ofxUINode *scene;
+	Node *scene;
 	bool bUpdateDispatch;
 
 
-	void fillComponentsUnder(ofxUINode* root, const ofVec2f &p, std::list<ofxUINode*>& list);
+	void fillComponentsUnder(Node* root, const ofVec2f &p, std::list<Node*>& list);
 
 	// touch data per ID
 	map<int, TouchEvent*> touches;
@@ -74,11 +80,14 @@ private:
 	ofMutex mutex;
 
 	// singleton stuff
+	~TouchManager();
 	TouchManager();
     // make sure there are no copies
     TouchManager(TouchManager const&);
     void operator=(TouchManager const&);
 	
 };
+
+}
 
 #endif /* defined(__TouchManager__) */

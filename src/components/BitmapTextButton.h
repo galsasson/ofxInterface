@@ -6,15 +6,15 @@
 //
 //
 
-#ifndef __ofxUINode__BitmapTextButton__
-#define __ofxUINode__BitmapTextButton__
+#ifndef __ofxInterface__BitmapTextButton__
+#define __ofxInterface__BitmapTextButton__
 
 #include <stdio.h>
 #include "ofMain.h"
 
-#include "ofxUINode.h"
+#include "ofxInterface.h"
 
-class BitmapTextButton : public ofxUINode
+class BitmapTextButton : public ofxInterface::Node
 {
 public:
 

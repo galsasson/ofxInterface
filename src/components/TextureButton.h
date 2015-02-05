@@ -6,14 +6,14 @@
 //
 //
 
-#ifndef __ofxUINode__TextureButton__
-#define __ofxUINode__TextureButton__
+#ifndef __ofxInterface__TextureButton__
+#define __ofxInterface__TextureButton__
 
 #include <iostream>
 #include "ofMain.h"
-#include "ofxUINode.h"
+#include "ofxInterface.h"
 
-class TextureButton : public ofxUINode
+class TextureButton : public ofxInterface::Node
 {
 public:
 	TextureButton();
