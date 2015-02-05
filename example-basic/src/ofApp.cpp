@@ -19,7 +19,7 @@ void ofApp::setup(){
 	scene->setName("Scene");
 
 	/******
-	 * this is the touch manager, give it the scene to set it up
+	 * this is the touch manager, give him the scene to set it up
 	 */
 	TouchManager::one().setup(scene);
 
@@ -77,10 +77,10 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	/******
-	 * this will draw the scene
+	 * this will render the scene
 	 * 1. this function takes all the visible nodes
 	 * 2. sort them by 'plane' float
-	 * 3. translate to the position of each node
+	 * 3. transform into the local space of each node
 	 * 4. calls the 'draw' function on each node
 	 */
 	scene->render();
@@ -91,6 +91,11 @@ void ofApp::draw(){
 	if (bShowDebug) {
 		scene->renderDebug();
 	}
+
+
+
+	ofSetColor(255);
+	ofDrawBitmapString("hit 'd' to toggle renderDebug", 5, ofGetHeight()-8);
 }
 
 //--------------------------------------------------------------
