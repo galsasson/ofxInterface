@@ -31,6 +31,8 @@ class ofApp : public ofBaseApp{
 
 	vector<ButtonExample*> buttons;
 
+	void populateScene();
+
 	bool bShowDebug;
 
 };

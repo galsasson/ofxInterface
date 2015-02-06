@@ -40,10 +40,12 @@ void ButtonExample::draw()
 	 * always draw in local space
 	 */
 
+	// draw the frame
 	ofSetColor(color);
 	ofNoFill();
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
 
+	// draw the touch anchor
 	if (bTouched) {
 		ofSetColor(150, 200, 255);
 		ofFill();

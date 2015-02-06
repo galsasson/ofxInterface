@@ -27,6 +27,11 @@ void ofApp::setup(){
 	/******
 	 * create custom gui components in a grid and add them to the scene
 	 */
+	populateScene();
+}
+
+void ofApp::populateScene()
+{
 	float size = 40;
 	float pad = 40;
 	int perRow = 10;
@@ -66,12 +71,9 @@ void ofApp::update(){
 	/******
 	 * update the nodes (optional, only if you have an update)
 	 */
-	for (int i=0; i<buttons.size(); i++)
-	{
+	for (int i=0; i<buttons.size(); i++) {
 		buttons[i]->update();
 	}
-
-
 }
 
 //--------------------------------------------------------------
@@ -93,7 +95,6 @@ void ofApp::draw(){
 	}
 
 
-
 	ofSetColor(255);
 	ofDrawBitmapString("hit 'd' to toggle debug rendering", 5, ofGetHeight()-8);
 }
@@ -110,7 +111,6 @@ void ofApp::keyPressed(int key){
 			bShowDebug = !bShowDebug;
 			break;
 	}
-
 }
 
 //--------------------------------------------------------------
@@ -138,7 +138,6 @@ void ofApp::mousePressed(int x, int y, int button){
 	 * pass touch/mouse events to the touch manager
 	 */
 	TouchManager::one().touchDown(button, ofVec2f(x, y));
-
 }
 
 //--------------------------------------------------------------
