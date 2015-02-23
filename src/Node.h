@@ -84,6 +84,11 @@ public:
 	 */
 	void render(bool forceAll = false);
 	void renderDebug();	// same as render but calls drawDebug instead of draw.
+    
+    /******
+     * call the 'update' function of visible children
+     */
+    void updateSubtree(float dt, bool forceAll=false);
 
 	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }

@@ -75,9 +75,6 @@ void Node::drawBounds()
 
 void Node::render(bool forceAll)
 {
-//	ofPushMatrix();
-//	ofMultMatrix(getGlobalTransformMatrix().getInverse());
-
 	std::list<Node*> sortedNodes;
 	std::list<Node*>::iterator it;
 
@@ -105,17 +102,12 @@ void Node::render(bool forceAll)
 		ofPopMatrix();
 		ofPopStyle();
 	}
-
-//	ofPopMatrix();
 }
 
 
 
 void Node::renderDebug()
 {
-//	ofPushMatrix();
-//	ofMultMatrix(getGlobalTransformMatrix().getInverse());
-
 	// sort scene by z (+z goes outside of the screen), plane is z
 	std::list<Node*> sortedNodes;
 	std::list<Node*>::iterator it;
@@ -135,11 +127,27 @@ void Node::renderDebug()
 		ofPopMatrix();
 		ofPopStyle();
 	}
-
-//	ofPopMatrix();
 }
 
 
+void Node::updateSubtree(float dt, bool forceAll)
+{
+    std::list<Node*> nodes;
+    
+    if (forceAll) {
+        // get all nodes (visible and invisible)
+        getSubTreeList(nodes);
+    }
+    else {
+        // get only visible nodes
+        getVisibleSubTreeList(nodes);
+    }
+    
+    for (Node* node : nodes)
+    {
+        node->update(dt);
+    }
+}
 
 
 
