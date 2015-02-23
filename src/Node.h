@@ -87,6 +87,9 @@ public:
 
 	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }
+	void setX(float x) { setPosition(x, getY(), getZ()); }
+	void setY(float y) { setPosition(getX(), y, getZ()); }
+	void setZ(float z) { setPosition(getX(), getY(), z); }
 
 	// when rendering, nodes will be sorted by plane number (its a float)
 	float getPlane() const { return plane; }
