@@ -18,5 +18,6 @@
  */
 #include "TextureButton.h"
 #include "BitmapTextButton.h"
+#include "SolidColorPanel.h"
 
 #endif
