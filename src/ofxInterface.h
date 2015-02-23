@@ -13,4 +13,10 @@
 #include "TouchEvent.h"
 #include "TouchManager.h"
 
+/******
+ * include default components
+ */
+#include "TextureButton.h"
+#include "BitmapTextButton.h"
+
 #endif
