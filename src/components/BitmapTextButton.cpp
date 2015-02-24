@@ -36,6 +36,7 @@ void BitmapTextButton::draw()
 
 	ofSetColor(borderColor);
 	ofNoFill();
+    ofSetLineWidth(1);
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
 }
 
