@@ -61,7 +61,7 @@ public:
 	 * default implementation works only if your component is 
 	 * rectangular.
 	 */
-	virtual bool contains(const ofVec2f& globalPoint);
+	virtual bool contains(const ofVec3f& globalPoint);
 
 	// interaction events (register to these events and you're good to go)
 	ofEvent<TouchEvent> eventTouchDown;
@@ -120,12 +120,35 @@ public:
 	void touchExit(int id, TouchEvent* event);
 	void touchEnter(int id, TouchEvent* event);
 
-	ofVec2f toLocal(const ofVec2f& screenPoint);
+	ofVec3f toLocal(const ofVec3f& screenPoint);
+    ofVec3f toGlobal(const ofVec3f& localPoint);
 
-	void setVisible(bool visible) { bVisible = visible; }
-	bool getVisible() const { return bVisible; }
-	void setEnabled(bool enable) { bEnabled = enable; }
-	bool getEnabled() const { return bEnabled; }
+    /******
+     * Visible & Enabled:
+     *
+     * truely visible node will draw and update every frame
+     * truely enabled node will respond to touch events
+     *
+     * truely visible: this node and all its ancestors are visible
+     * truely enabled: this node and all its ancestors and enabled
+     */
+    
+    void setVisible(bool visible);
+    bool getVisible() const { return bVisible; }
+    bool getVisibleGlobally() const; // this node and all ancestors and visible (truely visible)
+    void setEnabled(bool enable);
+    bool getEnabled() const { return bEnabled; }
+    bool getEnabledGlobally() const; // this node and all ancestors and enabled (truely enabled)
+    
+    /******
+     * visiblity & enable events
+     *
+     * will be notified when the node becomes visible / hidden, enabled / disabled
+     */
+    ofEvent<void> eventNodeDidAppear;
+    ofEvent<void> eventNodeDidDisappear;
+    ofEvent<void> eventNodeWasEnabled;
+    ofEvent<void> eventNodeWasDisabled;
 
 	void activate() { setVisible(true); setEnabled(true); }
 	void deactivate() { setVisible(false); setEnabled(false); }
@@ -142,8 +165,10 @@ public:
 	}
 	// returns a list representation of all children in sub graph
 	void getSubTreeList(std::list<Node*>& list);
-	// returns a list of visible elements in subgraph
+	// returns a list of visible elements in subtree
 	void getVisibleSubTreeList(std::list<Node*>& list);
+    // returns a list of enabled elements in subtree
+    void getEnabledSubTreeList(std::list<Node*>& list);
 	
 	// sort components by z
 	static bool bottomPlaneFirst(const Node* u, const Node* v)

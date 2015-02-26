@@ -133,6 +133,7 @@ void Node::renderDebug()
 void Node::updateSubtree(float dt, bool forceAll)
 {
     std::list<Node*> nodes;
+    std::list<Node*>::iterator it;
     
     if (forceAll) {
         // get all nodes (visible and invisible)
@@ -143,9 +144,9 @@ void Node::updateSubtree(float dt, bool forceAll)
         getVisibleSubTreeList(nodes);
     }
     
-    for (Node* node : nodes)
+    for (it = nodes.begin(); it != nodes.end(); it++)
     {
-        node->update(dt);
+        (*it)->update(dt);
     }
 }
 
@@ -213,12 +214,99 @@ void Node::touchEnter(int id, TouchEvent *event)
 	ofNotifyEvent(eventTouchEnter, *event);
 }
 
-ofVec2f Node::toLocal(const ofVec2f &screenPoint)
+ofVec3f Node::toLocal(const ofVec3f &screenPoint)
 {
 	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
 }
+    
+ofVec3f Node::toGlobal(const ofVec3f &localPoint)
+{
+    return (ofVec3f)localPoint*ofNode::getGlobalTransformMatrix();
+}
 
-bool Node::contains(const ofVec2f &globalPoint)
+void Node::setVisible(bool visible)
+{
+    bool bSendAppear = visible && !bVisible;
+    bool bSendDisappear = !visible && bVisible;
+    std::list<Node*> nodes;
+    std::list<Node*>::iterator it;
+    
+    if (bSendDisappear) {
+        // get visible nodes DEFORE we make outselves invisible
+        getVisibleSubTreeList(nodes);
+    }
+    
+    bVisible = visible;
+    
+    // notify appear events
+    if (bSendAppear) {
+        // get visible nodes AFTER we make ourselves visible
+        getVisibleSubTreeList(nodes);
+        for (it = nodes.begin(); it != nodes.end(); it++) {
+            ofNotifyEvent((*it)->eventNodeDidAppear);
+        }
+    }
+    
+    // send disappear events
+    if (bSendDisappear) {
+        for (it = nodes.begin(); it != nodes.end(); it++) {
+            ofNotifyEvent((*it)->eventNodeDidDisappear);
+        }
+    }
+}
+
+bool Node::getVisibleGlobally() const
+{
+    if (parent == NULL) {
+        return bVisible;
+    }
+    else {
+        return bVisible && ((Node*)parent)->getVisibleGlobally();
+    }
+}
+
+void Node::setEnabled(bool enable)
+{
+    bool bSendEnabled = enable && !bEnabled;
+    bool bSendDisabled = !enable && bEnabled;
+    std::list<Node*> nodes;
+    std::list<Node*>::iterator it;
+    
+    if (bSendDisabled) {
+        // get visible nodes DEFORE we make outselves invisible
+        getEnabledSubTreeList(nodes);
+    }
+    
+    bEnabled = enable;
+    
+    // notify appear events
+    if (bSendEnabled) {
+        // get visible nodes AFTER we make ourselves visible
+        getEnabledSubTreeList(nodes);
+        for (it = nodes.begin(); it != nodes.end(); it++) {
+            ofNotifyEvent((*it)->eventNodeWasEnabled);
+        }
+    }
+    
+    // send disappear events
+    if (bSendDisabled) {
+        for (it = nodes.begin(); it != nodes.end(); it++) {
+            ofNotifyEvent((*it)->eventNodeWasDisabled);
+        }
+    }
+}
+
+bool Node::getEnabledGlobally() const
+{
+    if (parent == NULL) {
+        return bEnabled;
+    }
+    else {
+        return bEnabled && ((Node*)parent)->getEnabledGlobally();
+    }
+}
+    
+bool Node::contains(const ofVec3f &globalPoint)
 {
 	ofVec2f local = toLocal(globalPoint);
 
@@ -309,10 +397,22 @@ void Node::getVisibleSubTreeList(std::list<Node*>& list)
 	
 	list.push_back(this);
 
-	for (int i=0; i<children.size(); i++)
-	{
+	for (int i=0; i<children.size(); i++) {
 		children[i]->getVisibleSubTreeList(list);
 	}
+}
+    
+void Node::getEnabledSubTreeList(std::list<Node *> &list)
+{
+    if (!getEnabled()) {
+        return;
+    }
+    
+    list.push_back(this);
+    
+    for (int i=0; i<children.size(); i++) {
+        children[i]->getEnabledSubTreeList(list);
+    }
 }
 
 void Node::placeNextTo(const Node &comp, Node::Side side, float margin)
