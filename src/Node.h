@@ -147,10 +147,10 @@ public:
      *
      * will be notified when the node becomes visible / hidden, enabled / disabled
      */
-    ofEvent<void> eventNodeDidAppear;
-    ofEvent<void> eventNodeDidDisappear;
-    ofEvent<void> eventNodeWasEnabled;
-    ofEvent<void> eventNodeWasDisabled;
+    ofEvent<ofxInterface::Node> eventNodeDidAppear;
+    ofEvent<ofxInterface::Node> eventNodeDidDisappear;
+    ofEvent<ofxInterface::Node> eventNodeWasEnabled;
+    ofEvent<ofxInterface::Node> eventNodeWasDisabled;
 
 	void activate() { setVisible(true); setEnabled(true); }
 	void deactivate() { setVisible(false); setEnabled(false); }

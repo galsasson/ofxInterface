@@ -266,14 +266,14 @@ void Node::setVisible(bool visible)
         // get visible nodes AFTER we make ourselves visible
         getVisibleSubTreeList(nodes);
         for (it = nodes.begin(); it != nodes.end(); it++) {
-            ofNotifyEvent((*it)->eventNodeDidAppear);
+            ofNotifyEvent((*it)->eventNodeDidAppear, *(*it), this);
         }
     }
     
     // send disappear events
     if (bSendDisappear) {
         for (it = nodes.begin(); it != nodes.end(); it++) {
-            ofNotifyEvent((*it)->eventNodeDidDisappear);
+            ofNotifyEvent((*it)->eventNodeDidDisappear, *(*it), this);
         }
     }
 }
@@ -307,14 +307,14 @@ void Node::setEnabled(bool enable)
         // get visible nodes AFTER we make ourselves visible
         getEnabledSubTreeList(nodes);
         for (it = nodes.begin(); it != nodes.end(); it++) {
-            ofNotifyEvent((*it)->eventNodeWasEnabled);
+            ofNotifyEvent((*it)->eventNodeWasEnabled, *(*it), this);
         }
     }
     
     // send disappear events
     if (bSendDisabled) {
         for (it = nodes.begin(); it != nodes.end(); it++) {
-            ofNotifyEvent((*it)->eventNodeWasDisabled);
+            ofNotifyEvent((*it)->eventNodeWasDisabled, *(*it), this);
         }
     }
 }
