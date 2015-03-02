@@ -36,11 +36,13 @@ public:
 	void setName(const std::string& _name) { name = _name; }
 	const std::string& getName() { return name; }
 
+    // search the tree for a node with a specific name, searchDepth of -1 means search all the way down
+    Node* getNodeWithName(const std::string& searchName, int searchDepth = -1) const;
+
 	// scene-graph adding/removing children stuff
 	void addChild(Node* child, int insertAt = -1);		// append by default
 	Node* removeChild(Node *child);
 	Node* removeChild(int index);
-	Node* getChildWithName(const std::string& name, bool deepSearch = false) const;
 	int getNumChildren() const { return children.size(); }
 	const vector<Node*>& getChildren() const { return children; }
 

@@ -45,6 +45,29 @@ Node::Node()
 #endif
 }
 
+Node* Node::getNodeWithName(const std::string &searchName, int searchDepth) const
+{
+    if (searchName == name) {
+        return (Node*)this;
+    }
+
+    if (searchDepth==0) {
+        return NULL;
+    }
+
+    for (int i=0; i<children.size(); i++)
+    {
+        Node* node = children[i]->getNodeWithName(searchName, searchDepth-1);
+        if (node != NULL) {
+            return node;
+        }
+    }
+
+    return NULL;
+}
+
+
+
 void Node::drawDebug()
 {
 	// draw border
@@ -321,7 +344,6 @@ bool Node::contains(const ofVec3f &globalPoint)
 }
 
 
-
 void Node::addChild(Node *child, int insertAt)
 {
 	child->setParent(*this);
@@ -361,23 +383,6 @@ Node* Node::removeChild(int index)
 	return child;
 }
 
-
-Node* Node::getChildWithName(const std::string &name, bool deepSearch) const
-{
-	Node* child = NULL;
-
-	for (int i=0; i<children.size(); i++)
-	{
-		if (children[i]->getName() == name) {
-			return children[i];
-		}
-		else if (deepSearch) {
-			child = children[i]->getChildWithName(name, deepSearch);
-		}
-	}
-
-	return child;
-}
 
 void Node::getSubTreeList(std::list<Node*>& list)
 {
