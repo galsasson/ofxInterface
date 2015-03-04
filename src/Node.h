@@ -32,14 +32,19 @@ public:
 	virtual ~Node();
 	Node();
 
-	// if you like naming your components (you should)
+    /******
+     * Node Names:
+     *
+     * If you like naming your components (you should)
+     */
 	void setName(const std::string& _name) { name = _name; }
 	const std::string& getName() { return name; }
-
     // search the tree for a node with a specific name, searchDepth of -1 means search all the way down
     Node* getNodeWithName(const std::string& searchName, int searchDepth = -1) const;
 
-	// scene-graph adding/removing children stuff
+    /******
+     * Adding & Removing children
+     */
 	void addChild(Node* child, int insertAt = -1);		// append by default
 	Node* removeChild(Node *child);
 	Node* removeChild(int index);
@@ -97,31 +102,52 @@ public:
 	void setX(float x) { setPosition(x, getY(), getZ()); }
 	void setY(float y) { setPosition(getX(), y, getZ()); }
 	void setZ(float z) { setPosition(getX(), getY(), z); }
+    
+    /******
+     * For convenience:
+     *
+     * Center component inside parent
+     */
+    void setCenteredH();
+    void setCenteredV();
+    void setCentered();
 
-	// when rendering, nodes will be sorted by plane number (its a float)
+    
+	// when rendering, nodes will be sorted by plane number (float)
 	float getPlane() const { return plane; }
 	void setPlane(float _plane) { plane = _plane; }
 	float getGlobalPlane() const { return (parent == NULL)?plane:((Node*)parent)->getGlobalPlane()+plane;}
 
-	// set your size!
-	// this is important for the default contains function
-	ofVec2f getSize() const { return size; }
-	void setSize(float w, float h) { size.set(w, h); }
-	void setSize(const ofVec2f& s) { size.set(s); }
+    /******
+     * Node Size
+     *
+     * A node have a width and a height.
+     * The size is being used in the 'contains' function which tells the TouchManager
+     * if a point falls inside the component. The contains function can be overriden
+     * to support non rectangular nodes.
+     * The size is also being used by the drawBounds function, so you should override
+     * that one too if your node is not rectangular, or ignores width and height.
+     */
+    ofVec2f getSize() const { return size; }
+	void setSize(float w, float h) { size.set(w, h); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
+	void setSize(const ofVec2f& s) { size.set(s); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getWidth() const { return size.x; }
-	void setWidth(float w) { size.x = w; }
+	void setWidth(float w) { size.x = w; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getHeight() const { return size.y; }
-	void setHeight(float h) { size.y = h; }
+	void setHeight(float h) { size.y = h; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
-
-	// TouchManager will call these on touch events
-	void touchDown(int id, TouchEvent* event);
-	void touchMove(int id,  TouchEvent* event);
-	void touchUp(int id,  TouchEvent* event);
-	void touchExit(int id, TouchEvent* event);
-	void touchEnter(int id, TouchEvent* event);
-
+    
+    /******
+     * resizing events
+     *
+     * register to get events when settings the size
+     */
+    ofEvent<Node> eventNodeSizeChanged;
+    
+    /******
+     * translate local and global space points
+     */
 	ofVec3f toLocal(const ofVec3f& screenPoint);
     ofVec3f toGlobal(const ofVec3f& localPoint);
 
@@ -134,7 +160,6 @@ public:
      * truely visible: this node and all its ancestors are visible
      * truely enabled: this node and all its ancestors and enabled
      */
-    
     void setVisible(bool visible);
     bool getVisible() const { return bVisible; }
     bool getVisibleGlobally() const; // this node and all ancestors and visible (truely visible)
@@ -155,7 +180,9 @@ public:
 	void activate() { setVisible(true); setEnabled(true); }
 	void deactivate() { setVisible(false); setEnabled(false); }
 
-	// returns the component's depth in the scene-graph (how many ancestors).
+	/******
+     * returns the component's depth in the scene-graph (how many ancestors).
+     */
 	int getDepthInScene() const
 	{
 		if (parent != NULL) {
@@ -172,11 +199,32 @@ public:
     // returns a list of enabled elements in subtree
     void getEnabledSubTreeList(std::list<Node*>& list);
 	
-	// sort components by z
+	/******
+     * Scene sorting
+     *
+     * When drawing and interacting with the scene the nodes are sorted 
+     * from bottom to top.
+     * Sorting is achieved using three values:
+     * 1. Plane number:
+     *    Is a float that you can set using setPlane(float).
+     * 2. Depth in scene:
+     *    If the plane number of two nodes is the same, we sort by the 
+     *    depth in the scene-tree.
+     * 3. Same Depth Offset:
+     *    Is used to resolve a case where 1 and 2 are the same and we want 
+     *    consistency between drawing and interaction.
+     */
 	static bool bottomPlaneFirst(const Node* u, const Node* v)
 	{
 		if (u->getGlobalPlane() == v->getGlobalPlane()) {
-			return u->getDepthInScene() < v->getDepthInScene();
+            // same plane
+            if (u->getDepthInScene() == v->getDepthInScene()) {
+                // same plane and depth in scene, resolve with sameDepthOffset
+                return u->sameDepthOffset < v->sameDepthOffset;
+            }
+            else {
+                return u->getDepthInScene() < v->getDepthInScene();
+            }
 		}
 		else {
 			return u->getGlobalPlane() < v->getGlobalPlane();
@@ -186,7 +234,14 @@ public:
 	static bool topPlaneFirst(const Node* u, const Node* v)
 	{
 		if (u->getGlobalPlane() == v->getGlobalPlane()) {
-			return u->getDepthInScene() > v->getDepthInScene();
+            // same plane
+            if (u->getDepthInScene() == v->getDepthInScene()) {
+                // same plane and depth in scene, resolve with sameDepthOffset
+                return u->sameDepthOffset > v->sameDepthOffset;
+            }
+            else {
+                return u->getDepthInScene() > v->getDepthInScene();
+            }
 		}
 		else {
 			return u->getGlobalPlane() > v->getGlobalPlane();
@@ -250,6 +305,7 @@ protected:
 	// small value means back, large value is front
 	float plane;
 
+    // hold custom data
 	void* data;
 
 
@@ -261,7 +317,24 @@ protected:
 
 private:
 	bool bSendDestroy;
-
+    
+    /******
+     * sameDepthOffset:
+     * resolve sorting-by-depth ambiguity for nodes on the same plane and tree depth.
+     * it is set to a random number between 0 - 1 in the constructor.
+     */
+    float sameDepthOffset;
+    
+    
+    /******
+     * TouchManager will call these on touch events
+     * from there functions we dispatch the touch events above
+     */
+    void touchDown(int id, TouchEvent* event);
+    void touchMove(int id,  TouchEvent* event);
+    void touchUp(int id,  TouchEvent* event);
+    void touchExit(int id, TouchEvent* event);
+    void touchEnter(int id, TouchEvent* event);
 };
 
 }

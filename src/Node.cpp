@@ -35,6 +35,7 @@ Node::Node()
 	data = NULL;
 
 	bSendDestroy = true;
+    sameDepthOffset = ofRandom(0, 1);
 
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = ofColor(200, 200, 0);
@@ -174,6 +175,33 @@ void Node::updateSubtree(float dt, bool forceAll)
 }
 
 
+void Node::setCenteredH()
+{
+    if (parent == NULL) {
+        return;
+    }
+
+    setX((((Node*)parent)->getWidth() - getWidth())/2);
+}
+
+void Node::setCenteredV()
+{
+    if (parent == NULL) {
+        return;
+    }
+
+    setY((((Node*)parent)->getHeight() - getHeight())/2);
+}
+
+void Node::setCentered()
+{
+    if (parent == NULL) {
+        return;
+    }
+
+    setPosition((((Node*)parent)->getWidth() - getWidth())/2,
+                (((Node*)parent)->getHeight() - getHeight())/2);
+}
 
 void Node::touchDown(int id,  TouchEvent* event)
 {
