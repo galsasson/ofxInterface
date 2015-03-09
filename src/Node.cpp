@@ -130,13 +130,22 @@ void Node::render(bool forceAll)
 
 
 
-void Node::renderDebug()
+void Node::renderDebug(bool forceAll)
 {
 	// sort scene by z (+z goes outside of the screen), plane is z
 	std::list<Node*> sortedNodes;
 	std::list<Node*>::iterator it;
 
-	getSubTreeList(sortedNodes);
+	if (forceAll) {
+		// get all nodes (visible and invisible)
+		getSubTreeList(sortedNodes);
+	}
+	else {
+		// get only visible nodes
+		getVisibleSubTreeList(sortedNodes);
+	}
+
+	// sort scene by z (+z goes outside of the screen), plane is z
 	sortedNodes.sort(Node::bottomPlaneFirst);
 
 	for (it=sortedNodes.begin(); it!=sortedNodes.end(); it++)

@@ -90,7 +90,7 @@ public:
 	 * 3. call draw from back to front
 	 */
 	void render(bool forceAll = false);
-	void renderDebug();	// same as render but calls drawDebug instead of draw.
+	void renderDebug(bool forceAll = false);	// same as render but calls drawDebug instead of draw.
     
     /******
      * call the 'update' function of visible children
