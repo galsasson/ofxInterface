@@ -182,6 +182,25 @@ void Node::updateSubtree(float dt, bool forceAll)
     }
 }
 
+void Node::updateSubtreePostOrder(float dt, bool forceAll)
+{
+	std::vector<Node*>::iterator it;
+
+	for (it = children.begin(); it != children.end(); it++)
+	{
+		if (forceAll) {
+			(*it)->updateSubtreePostOrder(dt, forceAll);
+		}
+		else {
+			if ((*it)->getVisible()) {
+				(*it)->updateSubtreePostOrder(dt, forceAll);
+			}
+		}
+	}
+
+	update(dt);
+}
+
 
 void Node::setCenteredH()
 {
