@@ -165,21 +165,20 @@ void Node::renderDebug(bool forceAll)
 
 void Node::updateSubtree(float dt, bool forceAll)
 {
-    std::list<Node*> nodes;
-    std::list<Node*>::iterator it;
+	update(dt);
+
+    std::vector<Node*>::iterator it;
     
-    if (forceAll) {
-        // get all nodes (visible and invisible)
-        getSubTreeList(nodes);
-    }
-    else {
-        // get only visible nodes
-        getVisibleSubTreeList(nodes);
-    }
-    
-    for (it = nodes.begin(); it != nodes.end(); it++)
+    for (it = children.begin(); it != children.end(); it++)
     {
-        (*it)->update(dt);
+		if (forceAll) {
+			(*it)->updateSubtree(dt, forceAll);
+		}
+		else {
+			if ((*it)->getVisible()) {
+				(*it)->updateSubtree(dt, forceAll);
+			}
+		}
     }
 }
 
