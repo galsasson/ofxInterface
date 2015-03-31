@@ -140,8 +140,15 @@ void TouchManager::dispatchTouchDown(int id, const ofVec2f& p)
 
 void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 {
+	// check if this touch exists
+	map<int, TouchEvent*>::iterator eventIt = touches.find(id);
+	if (eventIt == touches.end()) {
+		ofLogWarning("TouchManager", "received touchMove for id (%d) without touchDown. ignoring this touch.", id);
+		return;
+	}
+
 	// update touch info
-	TouchEvent* event = touches[id];
+	TouchEvent* event = eventIt->second;
 
 	// discard if same position as the previous touch
 	if (event->prevPosition == p) {
@@ -216,8 +223,15 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 
 void TouchManager::dispatchTouchUp(int id, const ofVec2f &p)
 {
+	// check if this touch exists
+	map<int, TouchEvent*>::iterator eventIt = touches.find(id);
+	if (eventIt == touches.end()) {
+		ofLogWarning("TouchManager", "received touchUp for id (%d) without touchDown. ignoring this touch.", id);
+		return;
+	}
+
 	// update touch info
-	TouchEvent* event = touches[id];
+	TouchEvent* event = eventIt->second;
 	event->prevPosition = event->position;
 	event->prevVelocity = event->velocity;
 	event->prevTimestamp = event->timestamp;
