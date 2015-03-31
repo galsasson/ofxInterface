@@ -48,7 +48,7 @@ public:
 	void addChild(Node* child, int insertAt = -1);		// append by default
 	Node* removeChild(Node *child);
 	Node* removeChild(int index);
-	int getNumChildren() const { return children.size(); }
+	int getNumChildren() const { return (int)children.size(); }
 	const vector<Node*>& getChildren() const { return children; }
 
 
@@ -96,6 +96,7 @@ public:
      * call the 'update' function of visible children
      */
     void updateSubtree(float dt, bool forceAll=false);
+	void updateSubtreePostOrder(float dt, bool forceAll=false);
 
 	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }
