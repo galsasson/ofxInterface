@@ -34,6 +34,12 @@ void TextureButton::setup(ofTexture *tex, float x, float y)
 	borderColor = ofColor(0);
 }
 
+void TextureButton::setTexture(ofTexture* tex)
+{
+	texture = tex;
+	setSize(tex->getWidth(), tex->getHeight());
+}
+
 void TextureButton::setPadding(float top, float right, float bottom, float left)
 {
 	padTop = top;

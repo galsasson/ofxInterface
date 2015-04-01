@@ -22,6 +22,8 @@ public:
 	TextureButton();
 	void setup(ofTexture *tex, float x=0, float y=0);
 
+	void setTexture(ofTexture *tex);
+
 	void setBorder(bool draw) { bDrawBorder = draw; }
 	void setBackground(bool draw) { bDrawBackground = draw; }
 
