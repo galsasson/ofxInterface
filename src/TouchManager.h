@@ -43,6 +43,15 @@ public:
 	void dispatchTouchMove(int id, const ofVec2f& p);
 	void dispatchTouchUp(int id, const ofVec2f& p);
 
+
+	/******
+	 * Registering to the events below will give you all the events
+	 * in the system, use carefully
+	 */
+	ofEvent<TouchEvent> eventEveryTouchDown;
+	ofEvent<TouchEvent> eventEveryTouchMove;
+	ofEvent<TouchEvent> eventEveryTouchUp;
+
 	// get top-most component under point
 	Node* getComponentUnder(const ofVec2f &p);
 	// returns a list of all components under p (top most first)

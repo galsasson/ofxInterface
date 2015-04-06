@@ -126,16 +126,20 @@ void TouchManager::dispatchTouchDown(int id, const ofVec2f& p)
 	event->firstPosition = event->position = event->prevPosition = p;
 	touches[id] = event;
 
-	Node *node = getComponentUnder(p);
-	if (node == NULL) {
+	Node *receiver = getComponentUnder(p);
+	if (receiver == NULL) {
 		ofLogError("TouchManager","could not find node for touchDown");
 		return;
 	}
 
-	event->setReceiver(node);
-	event->lastSeenAbove = node;
+	event->setReceiver(receiver);
+	event->lastSeenAbove = receiver;
     event->type = TouchEvent::TYPE_DOWN;
-	return node->touchDown(id, event);
+
+	// dispatch the event to the receiver
+	receiver->touchDown(id, event);
+
+	ofNotifyEvent(eventEveryTouchDown, *event, this);
 }
 
 void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
@@ -199,6 +203,8 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 			// send touch move the the original component (firstSeenAbove)
             event->type = TouchEvent::TYPE_MOVE;
 			event->receiver->touchMove(id, event);
+
+			ofNotifyEvent(eventEveryTouchMove, *event, this);
 		}
 
 		// update last seen above
@@ -215,6 +221,8 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 		else {
             event->type = TouchEvent::TYPE_MOVE;
 			node->touchMove(id, event);
+
+			ofNotifyEvent(eventEveryTouchMove, *event, this);
 		}
 
 		event->lastSeenAbove = node;
@@ -260,6 +268,9 @@ void TouchManager::dispatchTouchUp(int id, const ofVec2f &p)
 
     event->type = TouchEvent::TYPE_UP;
 	event->receiver->touchUp(id, event);
+
+	ofNotifyEvent(eventEveryTouchUp, *event, this);
+
 	endTouch(id);
 }
 
