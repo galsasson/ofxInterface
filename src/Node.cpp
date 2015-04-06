@@ -10,6 +10,12 @@
 
 namespace ofxInterface {
 
+static ofColor defaultNodeColor = ofColor(200, 200, 0);
+static ofColor touchDownNodeColor = ofColor(0, 128, 255);
+static ofColor touchUpNodeColor = ofColor(0, 255, 128);
+static ofColor touchExitNodeColor = ofColor(128, 0, 255);
+static ofColor touchEnterNodeColor = ofColor(255, 0, 128);
+
 Node::~Node()
 {
 	if (parent != NULL) {
@@ -38,7 +44,7 @@ Node::Node()
     sameDepthOffset = ofRandom(0, 1);
 
 #ifdef OFXUINODE_DEBUG
-	debugBorderColor = ofColor(200, 200, 0);
+	debugBorderColor = defaultNodeColor;
 #endif
 
 #ifdef USE_OFX_HISTORY_PLOT
@@ -77,7 +83,7 @@ void Node::drawDebug()
 	ofSetColor(debugBorderColor);
 
 	drawBounds();
-	debugBorderColor = debugBorderColor.lerp(ofColor(ofColor(200, 200, 0)), 0.05);
+	debugBorderColor = debugBorderColor.lerp(defaultNodeColor, 0.05);
 
 	stringstream ss;
 	ss<<name<<" (plane: "<<getGlobalPlane()<<((bVisible)?", visible":"")<<")";
@@ -233,7 +239,7 @@ void Node::setCentered()
 void Node::touchDown(int id,  TouchEvent* event)
 {
 #ifdef OFXUINODE_DEBUG
-	debugBorderColor = ofColor(0, 128, 255);
+	debugBorderColor = touchDownNodeColor;
 #endif
 
 #ifdef USE_OFX_HISTORY_PLOT
@@ -259,7 +265,7 @@ void Node::touchMove(int id,  TouchEvent* event)
 void Node::touchUp(int id,  TouchEvent* event)
 {
 #ifdef OFXUINODE_DEBUG
-	debugBorderColor = ofColor(0, 255, 128);
+	debugBorderColor = touchUpNodeColor;
 #endif
 
 #ifdef USE_OFX_HISTORY_PLOT
@@ -279,7 +285,7 @@ void Node::touchUp(int id,  TouchEvent* event)
 void Node::touchExit(int id, TouchEvent *event)
 {
 #ifdef OFXUINODE_DEBUG
-	debugBorderColor = ofColor(128, 0, 255);
+	debugBorderColor = touchExitNodeColor;
 #endif
 	ofNotifyEvent(eventTouchExit, *event);
 }
@@ -287,7 +293,7 @@ void Node::touchExit(int id, TouchEvent *event)
 void Node::touchEnter(int id, TouchEvent *event)
 {
 #ifdef OFXUINODE_DEBUG
-	debugBorderColor = ofColor(255, 0, 128);
+	debugBorderColor = touchEnterNodeColor;
 #endif
 	ofNotifyEvent(eventTouchEnter, *event);
 }

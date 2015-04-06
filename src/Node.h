@@ -59,7 +59,7 @@ public:
 
 	// for debugging
 	virtual void drawDebug();	 // debug debugging stuff (will be called by renderDebug)
-	virtual void drawBounds();   // ovveride for debugging if bounds are not rectangular
+	virtual void drawBounds();   // overide for debugging if bounds are not rectangular
 
 	/******
 	 * for touch event handling
