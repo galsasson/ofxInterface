@@ -59,7 +59,7 @@ public:
 
 	// for debugging
 	virtual void drawDebug();	 // debug debugging stuff (will be called by renderDebug)
-	virtual void drawBounds();   // ovveride for debugging if bounds are not rectangular
+	virtual void drawBounds();   // overide for debugging if bounds are not rectangular
 
 	/******
 	 * for touch event handling
@@ -315,6 +315,14 @@ protected:
 #ifdef USE_OFX_HISTORY_PLOT
 	ofxHistoryPlot* historyPlot;
 #endif
+
+	#ifdef OFXUINODE_DEBUG
+	static ofColor defaultNodeColor;
+	static ofColor touchDownNodeColor;
+	static ofColor touchUpNodeColor;
+	static ofColor touchExitNodeColor;
+	static ofColor touchEnterNodeColor;
+	#endif
 
 private:
 	bool bSendDestroy;
