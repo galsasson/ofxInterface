@@ -316,6 +316,14 @@ protected:
 	ofxHistoryPlot* historyPlot;
 #endif
 
+	#ifdef OFXUINODE_DEBUG
+	static ofColor defaultNodeColor;
+	static ofColor touchDownNodeColor;
+	static ofColor touchUpNodeColor;
+	static ofColor touchExitNodeColor;
+	static ofColor touchEnterNodeColor;
+	#endif
+
 private:
 	bool bSendDestroy;
     

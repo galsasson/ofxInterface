@@ -10,11 +10,13 @@
 
 namespace ofxInterface {
 
-static ofColor defaultNodeColor = ofColor(200, 200, 0);
-static ofColor touchDownNodeColor = ofColor(0, 128, 255);
-static ofColor touchUpNodeColor = ofColor(0, 255, 128);
-static ofColor touchExitNodeColor = ofColor(128, 0, 255);
-static ofColor touchEnterNodeColor = ofColor(255, 0, 128);
+#ifdef OFXUINODE_DEBUG
+ofColor Node::defaultNodeColor = ofColor(200, 200, 0);
+ofColor Node::touchDownNodeColor = ofColor(0, 128, 255);
+ofColor Node::touchUpNodeColor = ofColor(0, 255, 128);
+ofColor Node::touchExitNodeColor = ofColor(128, 0, 255);
+ofColor Node::touchEnterNodeColor = ofColor(255, 0, 128);
+#endif
 
 Node::~Node()
 {
@@ -83,7 +85,9 @@ void Node::drawDebug()
 	ofSetColor(debugBorderColor);
 
 	drawBounds();
+	#ifdef OFXUINODE_DEBUG
 	debugBorderColor = debugBorderColor.lerp(defaultNodeColor, 0.05);
+	#endif
 
 	stringstream ss;
 	ss<<name<<" (plane: "<<getGlobalPlane()<<((bVisible)?", visible":"")<<")";
