@@ -139,8 +139,8 @@ public:
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
 
-	ofVec2f getCenter(){ return getPosition() + size * 0.5; }
-	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5); }
+	ofVec2f getCenter(){ return getPosition() + size * 0.5f; }
+	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5f); }
     
     /******
      * resizing events
