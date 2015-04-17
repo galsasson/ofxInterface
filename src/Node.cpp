@@ -18,8 +18,12 @@ ofColor Node::touchExitNodeColor = ofColor(128, 0, 255);
 ofColor Node::touchEnterNodeColor = ofColor(255, 0, 128);
 #endif
 
+static int numInterfaceNodes = 0;
+
+
 Node::~Node()
 {
+	numInterfaceNodes--;
 	if (parent != NULL) {
 		((Node*)parent)->removeChild(this);
 	}
@@ -35,6 +39,7 @@ Node::~Node()
 
 Node::Node()
 {
+	numInterfaceNodes++;
 	plane = 0;
 	size.set(0, 0);
 
@@ -52,6 +57,11 @@ Node::Node()
 #ifdef USE_OFX_HISTORY_PLOT
 	historyPlot = NULL;
 #endif
+}
+
+
+int Node::getNumNodesAlive(){
+	return numInterfaceNodes;
 }
 
 Node* Node::getNodeWithName(const std::string &searchName, int searchDepth) const

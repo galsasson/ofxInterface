@@ -284,7 +284,8 @@ public:
 	void setData(void* _data) { data = _data; }
 	void* getData() { return data; }
 
-
+	//check for leaks
+	static int getNumNodesAlive();
 
 	enum Side {
 		LEFT,
