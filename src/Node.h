@@ -138,6 +138,9 @@ public:
 	void setHeight(float h) { size.y = h; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
+
+	ofVec2f getCenter(){ return getPosition() + size * 0.5f; }
+	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5f); }
     
     /******
      * resizing events
@@ -281,7 +284,8 @@ public:
 	void setData(void* _data) { data = _data; }
 	void* getData() { return data; }
 
-
+	//check for leaks
+	static int getNumNodesAlive();
 
 	enum Side {
 		LEFT,
