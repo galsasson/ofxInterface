@@ -152,8 +152,8 @@ public:
     /******
      * translate local and global space points
      */
-	ofVec3f toLocal(const ofVec3f& screenPoint);
-    ofVec3f toGlobal(const ofVec3f& localPoint);
+	virtual ofVec3f toLocal(const ofVec3f& screenPoint);
+	virtual ofVec3f toGlobal(const ofVec3f& localPoint);
 
     /******
      * Visible & Enabled:
