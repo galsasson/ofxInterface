@@ -212,6 +212,7 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 			// send touchExit event to the original component
             event->type = TouchEvent::TYPE_EXIT;
 			event->receiver->touchExit(id, event);
+			event->receiver->touchMove(id, event);
 		}
 		else {
 			// send touch move the the original component (firstSeenAbove)
@@ -231,6 +232,7 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 			// send touch enter when we return
             event->type = TouchEvent::TYPE_ENTER;
 			node->touchEnter(id, event);
+			node->touchMove(id, event);
 		}
 		else {
             event->type = TouchEvent::TYPE_MOVE;
