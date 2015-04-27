@@ -76,6 +76,20 @@ void TouchManager::update(float dt)
 	}
 }
 
+void TouchManager::draw(){
+	map<int, TouchEvent*>::iterator it = touches.begin();
+	for (;it!=touches.end(); it++){
+		if(it->second){
+			ofSetColor(255,32);
+			ofCircle(it->second->position, 20);
+			ofSetColor(255);
+			ofCircle(it->second->position, 4);
+			ofDrawBitmapString(ofToString(it->first), it->second->position + ofVec2f(5, -3));
+		}
+	}
+}
+
+
 void TouchManager::touchDown(int id, const ofVec2f& p)
 {
 	if (bUpdateDispatch) {

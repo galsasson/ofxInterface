@@ -29,7 +29,8 @@ public:
 
 	void setup(Node* root, bool dispatchOnUpdate = false);
 	
-	void update(float dt = 1.0f / ofGetFrameRate());
+	void update(float dt = ofGetLastFrameTime());
+	void draw();
 
 	/******
 	 * touch events
