@@ -225,7 +225,7 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 
 	// send touchMove
 	event->type = TouchEvent::TYPE_MOVE;
-	node->touchMove(id, event);
+	event->receiver->touchMove(id, event);
 
 	// notify listeners for every touch move
 	ofNotifyEvent(eventEveryTouchMove, *event, this);
