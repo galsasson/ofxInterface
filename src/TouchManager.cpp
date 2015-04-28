@@ -81,9 +81,9 @@ void TouchManager::draw(){
 	for (;it!=touches.end(); it++){
 		if(it->second){
 			ofSetColor(255,32);
-			ofCircle(it->second->position, 20);
+			ofDrawCircle(it->second->position, 20);
 			ofSetColor(255);
-			ofCircle(it->second->position, 4);
+			ofDrawCircle(it->second->position, 4);
 			ofDrawBitmapString(ofToString(it->first), it->second->position + ofVec2f(5, -3));
 		}
 	}
@@ -205,44 +205,30 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 		return;
 	}
 
-	if (node != event->receiver) {
-		// we are outside of this touch original component
-		if (event->lastSeenAbove == event->receiver) {
-			// touch moved to another component
-			// send touchExit event to the original component
-            event->type = TouchEvent::TYPE_EXIT;
-			event->receiver->touchExit(id, event);
-			event->receiver->touchMove(id, event);
-		}
-		else {
-			// send touch move the the original component (firstSeenAbove)
-            event->type = TouchEvent::TYPE_MOVE;
-			event->receiver->touchMove(id, event);
-
-			ofNotifyEvent(eventEveryTouchMove, *event, this);
-		}
-
-		// update last seen above
-		event->lastSeenAbove = node;
+	// handle touch exit/enter events
+	if (node != event->receiver &&
+		event->lastSeenAbove == event->receiver) {
+		// touch just went out of the origin receiver area,
+		// send touchExit
+		event->type = TouchEvent::TYPE_EXIT;
+		event->receiver->touchExit(id, event);
 	}
-	else {
-		// we are above the original component
-		if (event->lastSeenAbove != event->receiver) {
-			// touch just moved back to the original component
-			// send touch enter when we return
-            event->type = TouchEvent::TYPE_ENTER;
-			node->touchEnter(id, event);
-			node->touchMove(id, event);
-		}
-		else {
-            event->type = TouchEvent::TYPE_MOVE;
-			node->touchMove(id, event);
-
-			ofNotifyEvent(eventEveryTouchMove, *event, this);
-		}
-
-		event->lastSeenAbove = node;
+	else if (node == event->receiver &&
+			 event->lastSeenAbove != event->receiver) {
+		// touch just went into the origin receiver area,
+		// send touchEnter
+		event->type = TouchEvent::TYPE_ENTER;
+		event->receiver->touchEnter(id, event);
 	}
+
+	event->lastSeenAbove = node;
+
+	// send touchMove
+	event->type = TouchEvent::TYPE_MOVE;
+	node->touchMove(id, event);
+
+	// notify listeners for every touch move
+	ofNotifyEvent(eventEveryTouchMove, *event, this);
 }
 
 void TouchManager::dispatchTouchUp(int id, const ofVec2f &p)
