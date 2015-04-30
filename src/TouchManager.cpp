@@ -79,6 +79,7 @@ void TouchManager::update(float dt)
 
 void TouchManager::draw(){
 	ofMesh points;
+	glPointSize(1);
 	points.setMode(OF_PRIMITIVE_POINTS);
 	map<int, TouchEvent*>::iterator it = touches.begin();
 	for (;it!=touches.end(); it++){
