@@ -33,17 +33,11 @@ public:
 	void draw();
 
 	/******
-	 * touch events
+	 * embedding application should call these to report touches
 	 */
-	// go over the scene and send the event to the component
 	void touchDown(int id, const ofVec2f& p);
 	void touchMove(int id, const ofVec2f& p);
 	void touchUp(int id, const ofVec2f& p);
-
-	void dispatchTouchDown(int id, const ofVec2f& p);
-	void dispatchTouchMove(int id, const ofVec2f& p);
-	void dispatchTouchUp(int id, const ofVec2f& p);
-
 
 	/******
 	 * Registering to the events below will give you all the events
@@ -58,36 +52,47 @@ public:
 	// returns a list of all components under p (top most first)
 	std::list<Node*> getAllComponentsUnder(const ofVec2f &p);
 
-	void endTouch(int id);
-
+	// parameters that effect velocity smoothing
 	float velocitySmoothCoeff;
-	float touchHasMovedThreshold;
 	float touchVelocityDump;
-
-	enum TouchActionType{ TOUCH_DOWN, TOUCH_MOVE, TOUCH_UP };
-
-    struct TouchAction{
-        TouchActionType actionType;
-        int id;
-        ofVec2f pos;
-        TouchAction(TouchActionType a, int _id, ofVec2f p) {
-            actionType = a; id = _id; pos = p;
-        }
-    };
+	// maximum threshold for click
+	float touchHasMovedThreshold;
 
 private:
 	Node *scene;
 	bool bUpdateDispatch;
 
+	/******
+	 * dispatch touch events to scene
+	 */
+	// go over the scene and send the event to the component
+	void dispatchTouchDown(int id, const ofVec2f& p);
+	void dispatchTouchMove(int id, const ofVec2f& p);
+	void dispatchTouchUp(int id, const ofVec2f& p);
 
 	void fillComponentsUnder(Node* root, const ofVec2f &p, std::list<Node*>& list);
 
 	// touch data per ID
 	map<int, TouchEvent*> touches;
 
-	// for update dispatch
+	/******
+	 * for update dispatch
+	 * (private things you should not care about
+	 */
+	enum TouchActionType{ TOUCH_DOWN, TOUCH_MOVE, TOUCH_UP };
+
+	struct TouchAction{
+		TouchActionType actionType;
+		int id;
+		ofVec2f pos;
+		TouchAction(TouchActionType a, int _id, ofVec2f p) {
+			actionType = a; id = _id; pos = p;
+		}
+	};
 	vector<TouchAction> touchQueue;
 	ofMutex mutex;
+
+	void endTouch(int id);
 
 	// singleton stuff
 	~TouchManager();
