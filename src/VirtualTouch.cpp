@@ -20,13 +20,15 @@ VirtualTouch::~VirtualTouch()
 
 VirtualTouch::VirtualTouch() :
 	fingerTex(NULL),
-	bInitialized(false)
+	bInitialized(false),
+	isTap(false)
 {
 
 }
 
 int VirtualTouch::setup(const ofVec2f &p, float duration)
 {
+	isTap = true;
 	return setup(p, p, duration);
 }
 
@@ -135,8 +137,10 @@ void VirtualTouch::update(float dt)
 	}
 	else {
 		// touch move
-		currentPos = path.getPointAtPercent(time/duration);
-		TouchManager::one().touchMove(id, currentPos);
+		if(!isTap){
+			currentPos = path.getPointAtPercent(time/duration);
+			TouchManager::one().touchMove(id, currentPos);
+		}
 	}
 
 	time += dt;

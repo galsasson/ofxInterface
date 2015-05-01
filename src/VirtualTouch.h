@@ -61,6 +61,8 @@ private:
 	ofVec2f currentPos;
 	float duration;
 
+	bool isTap;
+
 	float time;
 	bool bRunning;
 	bool bDown;

@@ -84,7 +84,7 @@ void TouchManager::update(float dt)
 
 void TouchManager::draw(){
 	ofMesh points;
-	glPointSize(1);
+	glPointSize(3);
 	points.setMode(OF_PRIMITIVE_POINTS);
 	ofFill();
 	map<int, TouchEvent*>::iterator it = touches.begin();
@@ -402,7 +402,7 @@ void TouchManager::setTouchRainArea(const ofRectangle &rect)
 
 void TouchManager::createRandomTaps(unsigned int n)
 {
-	while (n-->0) {
+	while (n-- > 0) {
 		VirtualTouch* vt = new VirtualTouch();
 		vt->setup(getRandomTouchPosition(), pow(ofRandom(0.1, 0.99), 2));
 		vt->play();
@@ -412,7 +412,7 @@ void TouchManager::createRandomTaps(unsigned int n)
 
 void TouchManager::createRandomSwipes(unsigned int n)
 {
-	while (n-->0) {
+	while (n-- > 0) {
 		VirtualTouch* vt = new VirtualTouch();
 		vt->setup(getRandomTouchPosition(), getRandomTouchPosition(), ofRandom(0.1, 5));
 		vt->play();
