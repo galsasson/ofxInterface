@@ -76,19 +76,55 @@ void TouchManager::update(float dt)
 	}
 }
 
+
 void TouchManager::draw(){
+	ofMesh points;
+	glPointSize(1);
+	points.setMode(OF_PRIMITIVE_POINTS);
 	map<int, TouchEvent*>::iterator it = touches.begin();
 	for (;it!=touches.end(); it++){
 		if(it->second){
 			ofSetColor(255,32);
 			ofDrawCircle(it->second->position, 20);
+			points.addVertex(it->second->position);
 			ofSetColor(255);
-			ofDrawCircle(it->second->position, 4);
 			ofDrawBitmapString(ofToString(it->first), it->second->position + ofVec2f(5, -3));
+		}
+	}
+	points.draw();
+}
+
+
+void TouchManager::drawFingerStatus(int x, int y){
+	map<int, TouchEvent*>::iterator it = touches.begin();
+	float rectSizeW = 40;
+	float rectSizeH = 20;
+	float padding = 10;
+	int xx = x;
+	for (;it!=touches.end(); it++){
+		if(it->second){
+			string type;
+			ofColor c;
+			switch (it->second->type) {
+				case TouchEvent::TYPE_UP: type= "UP"; c = ofColor::purple; break;
+				case TouchEvent::TYPE_DOWN: type= "DOWN"; c = ofColor::yellow;break;
+				case TouchEvent::TYPE_MOVE: type= "MOVE"; c = ofColor::blue; break;
+				case TouchEvent::TYPE_EXIT: type= "EXIT"; c = ofColor::red; break;
+				case TouchEvent::TYPE_ENTER: type= "ENTER"; c = ofColor::green; break;
+				case TouchEvent::TYPE_CLICK: type= "CLICK"; c = ofColor::magenta; break;
+			}
+			ofSetColor(c);
+			ofDrawRectangle(xx, y, rectSizeW, rectSizeH);
+			ofSetColor(255);
+			ofDrawBitmapString(ofToString(it->first), xx + 4, y + rectSizeH - 5 );
+			float secondsAlive = (ofGetSystemTimeMicros() - it->second->timestamp) / 1000000.0f;
+			ofDrawBitmapString(type + "\n" + ofToString(secondsAlive, 1), xx + 4, y + rectSizeH + 16);
+			xx += padding + rectSizeW;
 		}
 	}
 }
 
+	
 
 void TouchManager::touchDown(int id, const ofVec2f& p)
 {

@@ -31,6 +31,7 @@ public:
 	
 	void update(float dt = ofGetLastFrameTime());
 	void draw();
+	void drawFingerStatus(int x, int y);
 
 	/******
 	 * embedding application should call these to report touches
