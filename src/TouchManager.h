@@ -13,6 +13,7 @@
 #include "ofMain.h"
 
 #include "Node.h"
+#include "VirtualTouch.h"
 
 namespace ofxInterface
 {
@@ -34,7 +35,8 @@ public:
 	void drawFingerStatus(int x, int y);
 
 	/******
-	 * embedding application should call these to report touches
+	 * The embedding app should call these to report touches
+	 * TouchManager will take it from there
 	 */
 	void touchDown(int id, const ofVec2f& p);
 	void touchMove(int id, const ofVec2f& p);
@@ -58,6 +60,20 @@ public:
 	float touchVelocityDump;
 	// maximum threshold for click
 	float touchHasMovedThreshold;
+
+	/******
+	 * Touch Rain: random swipes and taps for testing
+	 */
+	void startTouchRain(unsigned int maxTaps=1, unsigned int maxSwipes=1);
+	void pauseTouchRain();
+	void stopTouchRain();
+	bool isTouchRainActive() { return bTouchRainActive; }
+
+	/******
+	 * Call this function to set the touch rain area.
+	 * This is optional, the default is the scene area
+	 */
+	void setTouchRainArea(const ofRectangle& rect);
 
 private:
 	Node *scene;
@@ -94,6 +110,21 @@ private:
 	ofMutex mutex;
 
 	void endTouch(int id);
+
+
+	/******
+	 * For Touch Rain implementation
+	 */
+	bool bTouchRainActive;
+	unsigned int maxSwipes;
+	unsigned int maxTaps;
+	ofRectangle touchRainArea;
+	vector<VirtualTouch*> virtualSwipes;
+	vector<VirtualTouch*> virtualTaps;
+	void updateTouchRain(float dt);
+	void createRandomSwipes(unsigned int n);
+	void createRandomTaps(unsigned int n);
+	ofVec2f getRandomTouchPosition();
 
 	// singleton stuff
 	~TouchManager();

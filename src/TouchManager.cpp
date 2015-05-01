@@ -8,6 +8,7 @@
 
 #include "TouchManager.h"
 #include "TouchEvent.h"
+#include "VirtualTouch.h"
 
 namespace ofxInterface {
 
@@ -40,11 +41,13 @@ void TouchManager::setup(Node *root, bool dispatchOnUpdate)
 {
 	scene = root;
 	bUpdateDispatch = dispatchOnUpdate;
+
+	touchRainArea = ofRectangle(scene->getX(), scene->getY(), scene->getWidth(), scene->getHeight());
+	bTouchRainActive = false;
 }
 
 void TouchManager::update(float dt)
 {
-
 	// smooth velocity of touches
 	map<int, TouchEvent*>::iterator it = touches.begin();
 	for (;it!=touches.end(); it++)
@@ -74,6 +77,8 @@ void TouchManager::update(float dt)
 			}
 		}
 	}
+
+	updateTouchRain(dt);
 }
 
 
@@ -81,10 +86,11 @@ void TouchManager::draw(){
 	ofMesh points;
 	glPointSize(1);
 	points.setMode(OF_PRIMITIVE_POINTS);
+	ofFill();
 	map<int, TouchEvent*>::iterator it = touches.begin();
 	for (;it!=touches.end(); it++){
 		if(it->second){
-			ofSetColor(255,32);
+			ofSetColor(255, 128);
 			ofDrawCircle(it->second->position, 20);
 			points.addVertex(it->second->position);
 			ofSetColor(255);
@@ -355,6 +361,101 @@ void TouchManager::fillComponentsUnder(Node* root, const ofVec2f &p, std::list<N
 		fillComponentsUnder(root->children[i], p, list);
 	}
 }
+
+/***********************************************************/
+/* Touch Rain implementation                               */
+/***********************************************************/
+void TouchManager::startTouchRain(unsigned int _maxTaps, unsigned int _maxSwipes)
+{
+	maxTaps = _maxTaps;
+	maxSwipes = _maxSwipes;
+
+	bTouchRainActive = true;
+}
+
+void TouchManager::pauseTouchRain()
+{
+	bTouchRainActive = false;
+}
+
+void TouchManager::stopTouchRain()
+{
+	for (int i=0; i<virtualTaps.size(); i++) {
+		virtualTaps[i]->stop();
+		delete virtualTaps[i];
+	}
+	virtualTaps.clear();
+
+	for (int i=0; i<virtualSwipes.size(); i++) {
+		virtualSwipes[i]->stop();
+		delete virtualSwipes[i];
+	}
+	virtualSwipes.clear();
+
+	bTouchRainActive = false;
+}
+
+void TouchManager::setTouchRainArea(const ofRectangle &rect)
+{
+	touchRainArea = rect;
+}
+
+void TouchManager::createRandomTaps(unsigned int n)
+{
+	while (n-->0) {
+		VirtualTouch* vt = new VirtualTouch();
+		vt->setup(getRandomTouchPosition(), pow(ofRandom(0.1, 0.99), 2));
+		vt->play();
+		virtualTaps.push_back(vt);
+	}
+}
+
+void TouchManager::createRandomSwipes(unsigned int n)
+{
+	while (n-->0) {
+		VirtualTouch* vt = new VirtualTouch();
+		vt->setup(getRandomTouchPosition(), getRandomTouchPosition(), ofRandom(0.1, 5));
+		vt->play();
+		virtualSwipes.push_back(vt);
+	}
+}
+
+ofVec2f TouchManager::getRandomTouchPosition()
+{
+	return ofVec2f(ofRandom(touchRainArea.getLeft(), touchRainArea.getRight()),
+				   ofRandom(touchRainArea.getTop(), touchRainArea.getBottom()));
+}
+
+void TouchManager::updateTouchRain(float dt)
+{
+	if (!bTouchRainActive) {
+		return;
+	}
+
+	// update virtual touches and delete completed
+	for (int i=(int)virtualTaps.size()-1; i>=0; i--) {
+		virtualTaps[i]->update(dt);
+
+		if (!virtualTaps[i]->isRunning()) {
+			delete virtualTaps[i];
+			virtualTaps.erase(virtualTaps.begin() + i);
+		}
+	}
+
+	for (int i=(int)virtualSwipes.size()-1; i>=0; i--) {
+		virtualSwipes[i]->update(dt);
+
+		if (!virtualSwipes[i]->isRunning()) {
+			delete virtualSwipes[i];
+			virtualSwipes.erase(virtualSwipes.begin() + i);
+		}
+	}
+
+	// add taps and swipes
+	createRandomTaps(maxTaps-(unsigned int)virtualTaps.size());
+	createRandomSwipes(maxSwipes-(unsigned int)virtualSwipes.size());
+}
+
 
 } // namespace
 

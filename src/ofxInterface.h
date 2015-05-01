@@ -12,6 +12,7 @@
 #include "Node.h"
 #include "TouchEvent.h"
 #include "TouchManager.h"
+#include "VirtualTouch.h"
 
 /******
  * include default components
