@@ -421,7 +421,7 @@ bool Node::contains(const ofVec3f &globalPoint)
 
 void Node::addChild(Node *child, int insertAt)
 {
-	child->setParent(*this);
+	child->setParent(*this, true);
 
 	if (insertAt == -1 || insertAt > children.size()) {
 		// append
@@ -454,7 +454,7 @@ Node* Node::removeChild(int index)
 
 	Node *child = children[index];
 	children.erase(children.begin()+index);
-	child->clearParent();
+	child->clearParent(true);
 	return child;
 }
 
