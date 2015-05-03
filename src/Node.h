@@ -136,6 +136,9 @@ public:
 	void setWidth(float w) { size.x = w; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getHeight() const { return size.y; }
 	void setHeight(float h) { size.y = h; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
+
+	float getLocalWidth() const { return size.x * getScale().x; }
+	float getLocalHeight() const { return size.y * getScale().y; }
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
 
