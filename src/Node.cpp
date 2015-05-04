@@ -64,7 +64,7 @@ int Node::getNumNodesAlive(){
 	return numInterfaceNodes;
 }
 
-Node* Node::getNodeWithName(const std::string &searchName, int searchDepth) const
+Node* Node::getChildWithName(const std::string &searchName, int searchDepth) const
 {
     if (searchName == name) {
         return (Node*)this;
@@ -76,7 +76,7 @@ Node* Node::getNodeWithName(const std::string &searchName, int searchDepth) cons
 
     for (int i=0; i<children.size(); i++)
     {
-        Node* node = children[i]->getNodeWithName(searchName, searchDepth-1);
+        Node* node = children[i]->getChildWithName(searchName, searchDepth-1);
         if (node != NULL) {
             return node;
         }
@@ -85,7 +85,22 @@ Node* Node::getNodeWithName(const std::string &searchName, int searchDepth) cons
     return NULL;
 }
 
+Node* Node::getParentWithName(const std::string &searchName, int searchDepth) const
+{
+	if (searchName == name) {
+		return (Node*)this;
+	}
 
+	if (searchDepth==0) {
+		return NULL;
+	}
+
+	if (parent == NULL) {
+		return NULL;
+	}
+
+	return ((Node*)parent)->getParentWithName(searchName, searchDepth-1);
+}
 
 void Node::drawDebug()
 {

@@ -40,7 +40,8 @@ public:
 	void setName(const std::string& _name) { name = _name; }
 	const std::string& getName() { return name; }
     // search the tree for a node with a specific name, searchDepth of -1 means search all the way down
-    Node* getNodeWithName(const std::string& searchName, int searchDepth = -1) const;
+    Node* getChildWithName(const std::string& searchName, int searchDepth = -1) const;
+	Node* getParentWithName(const std::string& searchName, int searchDepth = -1) const;
 
     /******
      * Adding & Removing children
