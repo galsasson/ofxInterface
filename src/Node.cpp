@@ -6,6 +6,8 @@
 //
 //
 
+#include "ofxNanoVG.h"
+
 #include "Node.h"
 
 namespace ofxInterface {
@@ -49,6 +51,11 @@ Node::Node()
 
 	bSendDestroy = true;
     sameDepthOffset = ofRandom(0, 1);
+
+	setUseFbo(true);
+	setFboScale(1);
+	setFboAnchor(ofVec2f(0, 0));
+	bNodeFboDirty = true;
 
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = defaultNodeColor;
@@ -102,6 +109,60 @@ Node* Node::getParentWithName(const std::string &searchName, int searchDepth) co
 	return ((Node*)parent)->getParentWithName(searchName, searchDepth-1);
 }
 
+	void Node::addChild(Node *child, int insertAt)
+	{
+		child->setParent(*this, true);
+
+		if (insertAt == -1 || insertAt > children.size()) {
+			// append
+			children.push_back(child);
+		}
+		else {
+			children.insert(children.begin()+insertAt, child);
+		}
+	}
+
+	Node* Node::removeChild(Node *child)
+	{
+		for (int i=0; i<children.size(); i++)
+		{
+			if (children[i] == child) {
+				return removeChild(i);
+			}
+		}
+
+		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
+		return NULL;
+	}
+
+	Node* Node::removeChild(int index)
+	{
+		if (index >= children.size()) {
+			ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
+			return NULL;
+		}
+
+		Node *child = children[index];
+		children.erase(children.begin()+index);
+		child->clearParent(true);
+		return child;
+	}
+
+	void Node::setUseFbo(bool use)
+	{
+		bNodeUseFbo = use;
+	}
+
+	void Node::setFboScale(float scale)
+	{
+		nodeFboScale = scale;
+	}
+
+	void Node::setFboAnchor(const ofVec2f& anchor)
+	{
+		nodeFboAnchor = anchor;
+	}
+
 void Node::drawDebug()
 {
 	// draw border
@@ -151,12 +212,21 @@ void Node::render(bool forceAll)
 
 	for (it=sortedNodes.begin(); it!=sortedNodes.end(); it++)
 	{
+		Node* n = (*it);
+
 		ofPushStyle();
 		ofPushMatrix();
-		ofMultMatrix((*it)->getGlobalTransformMatrix());
+		ofMultMatrix(n->getGlobalTransformMatrix());
 		// use anchor
 
-		(*it)->draw();
+		if (n->bNodeUseFbo) {
+			// draw the fbo (will also allocate and render if neccessary)
+			n->drawNodeFbo();
+		}
+		else {
+			// draw the node to the current frame buffer
+			n->draw();
+		}
 
 		ofPopMatrix();
 		ofPopStyle();
@@ -234,6 +304,11 @@ void Node::updateSubtreePostOrder(float dt, bool forceAll)
 	}
 
 	update(dt);
+	if (bNodeUseFbo) {
+		if (bNodeFboDirty) {
+			renderNodeFbo();
+		}
+	}
 }
 
 
@@ -433,47 +508,6 @@ bool Node::contains(const ofVec3f &globalPoint)
 	return true;
 }
 
-
-void Node::addChild(Node *child, int insertAt)
-{
-	child->setParent(*this, true);
-
-	if (insertAt == -1 || insertAt > children.size()) {
-		// append
-		children.push_back(child);
-	}
-	else {
-		children.insert(children.begin()+insertAt, child);
-	}
-}
-
-Node* Node::removeChild(Node *child)
-{
-	for (int i=0; i<children.size(); i++)
-	{
-		if (children[i] == child) {
-			return removeChild(i);
-		}
-	}
-
-	ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-	return NULL;
-}
-
-Node* Node::removeChild(int index)
-{
-	if (index >= children.size()) {
-		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-		return NULL;
-	}
-
-	Node *child = children[index];
-	children.erase(children.begin()+index);
-	child->clearParent(true);
-	return child;
-}
-
-
 void Node::getSubTreeList(std::list<Node*>& list)
 {
 	list.push_back(this);
@@ -539,6 +573,65 @@ void Node::placeNextTo(const Node &comp, Node::Side side, float margin)
 			break;
 	}
 }
+	void Node::allocateNodeFbo(int w, int h)
+	{
+		if (w == 0 || h == 0) {
+			return;
+		}
+
+		ofLogNotice("ofxInterface") << "allocate node fbo: [" << name << "," << this << "," <<w << "x" << h << "]";
+		ofFbo::Settings set;
+		set.width = w;
+		set.height = h;
+		set.internalformat = GL_RGBA;
+		set.useDepth = true;
+		set.useStencil = true;
+		nodeFbo.allocate(set);
+	}
+
+	void Node::renderNodeFbo()
+	{
+		int w = ceil(getWidth()*nodeFboScale);
+		int h = ceil(getHeight()*nodeFboScale);
+
+		if (w == 0 || h == 0) {
+			return;
+		}
+
+		if (abs(nodeFbo.getWidth() - w) > 1 ||
+			abs(nodeFbo.getHeight() - h) > 1) {
+			allocateNodeFbo(w, h);
+		}
+
+		ofLogNotice("ofxInterface") << "render node fbo: " << this;
+
+//		ofxNanoVG::one().pushFrame();
+
+		nodeFbo.begin();
+		ofClear(0, 0, 0, 0);
+
+		ofxNanoVG::one().beginFrame(w, h, 1.0f);
+
+		ofPushMatrix();
+		ofScale(nodeFboScale, nodeFboScale);
+		ofTranslate(nodeFboAnchor * getSize());
+		draw();
+		ofPopMatrix();
+
+		ofxNanoVG::one().endFrame();
+		nodeFbo.end();
+
+//		ofxNanoVG::one().popFrame();
+
+		bNodeFboDirty = false;
+	}
+
+	void Node::drawNodeFbo()
+	{
+		ofScale(1.0f / nodeFboScale, 1.0f / nodeFboScale);
+		ofSetColor(255);
+		nodeFbo.draw(-nodeFboAnchor * getSize());
+	}
 
 } // namespace
 

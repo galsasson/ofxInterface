@@ -53,6 +53,13 @@ public:
 	const vector<Node*>& getChildren() const { return children; }
 
 
+	// FBO
+	void setUseFbo(bool use);
+	void setFboScale(float scale);
+	void setFboAnchor(float x, float y) { setFboAnchor(ofVec2f(x, y)); }
+	void setFboAnchor(const ofVec2f& anchor);
+	void redrawFbo() { bNodeFboDirty = true; }
+
 	// functions to override
 	//
 	virtual void update(float dt) {}	// please override with update code
@@ -342,7 +349,16 @@ private:
      */
     float sameDepthOffset;
     
-    
+
+	bool bNodeUseFbo;
+	ofVec2f nodeFboAnchor;
+	float nodeFboScale;
+	bool bNodeFboDirty;
+	ofFbo nodeFbo;
+	void allocateNodeFbo(int w, int h);
+	void renderNodeFbo();
+	void drawNodeFbo();
+
     /******
      * TouchManager will call these on touch events
      * from there functions we dispatch the touch events above
