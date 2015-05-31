@@ -15,6 +15,7 @@ namespace ofxInterface {
 
 TouchManager::TouchManager()
 {
+	scene = NULL;
 	velocitySmoothCoeff = 0.25f;
 	touchVelocityDump = 0.6f;
 	touchHasMovedThreshold = 50;
@@ -39,6 +40,11 @@ TouchManager::~TouchManager()
 
 void TouchManager::setup(Node *root, bool dispatchOnUpdate)
 {
+	if (root == NULL) {
+		ofLogError("TouchManager") << "scene root is NULL";
+		return;
+	}
+
 	scene = root;
 	bUpdateDispatch = dispatchOnUpdate;
 
@@ -134,6 +140,11 @@ void TouchManager::drawFingerStatus(int x, int y){
 
 void TouchManager::touchDown(int id, const ofVec2f& p)
 {
+	if (scene == NULL) {
+		ofLogError("TouchManager") << "touchDown before setup. please call TouchManager::one().setup first";
+		return;
+	}
+
 	if (bUpdateDispatch) {
 		// queue touch to be dispatched in update
 		TouchAction t(TOUCH_DOWN, id, p);
@@ -148,6 +159,11 @@ void TouchManager::touchDown(int id, const ofVec2f& p)
 
 void TouchManager::touchMove(int id, const ofVec2f& p)
 {
+	if (scene == NULL) {
+		ofLogError("TouchManager") << "touchMove before setup. please call TouchManager::one().setup first";
+		return;
+	}
+
 	if (bUpdateDispatch) {
 		// queue touch to be dispatched in update
 		TouchAction t(TOUCH_MOVE, id, p);
@@ -162,6 +178,11 @@ void TouchManager::touchMove(int id, const ofVec2f& p)
 
 void TouchManager::touchUp(int id, const ofVec2f& p)
 {
+	if (scene == NULL) {
+		ofLogError("TouchManager") << "touchUp before setup. please call TouchManager::one().setup first";
+		return;
+	}
+
 	if (bUpdateDispatch) {
 		// queue touch to be dispatched in update
 		TouchAction t(TOUCH_UP, id, p);
