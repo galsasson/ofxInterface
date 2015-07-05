@@ -470,9 +470,14 @@ Node* Node::removeChild(int index)
 	Node *child = children[index];
 	children.erase(children.begin()+index);
 	child->clearParent(true);
+	ofNotifyEvent(eventChildDetached, *child, this);
 	return child;
 }
 
+bool Node::haveChild(ofxInterface::Node *child)
+{
+	return find(children.begin(), children.end(), child) != children.end();
+}
 
 void Node::getSubTreeList(std::list<Node*>& list)
 {

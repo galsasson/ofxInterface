@@ -51,7 +51,9 @@ public:
 	Node* removeChild(int index);
 	int getNumChildren() const { return (int)children.size(); }
 	const vector<Node*>& getChildren() const { return children; }
+	bool haveChild(Node* child);
 
+	ofEvent<ofxInterface::Node> eventChildDetached;
 
 	// functions to override
 	//
