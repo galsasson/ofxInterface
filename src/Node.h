@@ -53,7 +53,8 @@ public:
 	const vector<Node*>& getChildren() const { return children; }
 	bool haveChild(Node* child);
 
-	ofEvent<ofxInterface::Node> eventChildDetached;
+	ofEvent<ofxInterface::Node> eventChildRemoved;
+	ofEvent<ofxInterface::Node> eventChildAdded;
 
 	// functions to override
 	//

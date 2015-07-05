@@ -445,6 +445,8 @@ void Node::addChild(Node *child, int insertAt)
 	else {
 		children.insert(children.begin()+insertAt, child);
 	}
+
+	ofNotifyEvent(eventChildAdded, *child, this);
 }
 
 Node* Node::removeChild(Node *child)
@@ -470,7 +472,7 @@ Node* Node::removeChild(int index)
 	Node *child = children[index];
 	children.erase(children.begin()+index);
 	child->clearParent(true);
-	ofNotifyEvent(eventChildDetached, *child, this);
+	ofNotifyEvent(eventChildRemoved, *child, this);
 	return child;
 }
 
