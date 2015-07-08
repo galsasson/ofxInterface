@@ -27,17 +27,21 @@ void BitmapTextButton::setup(const string &_label)
 
 void BitmapTextButton::draw()
 {
-	ofSetColor(bgColor);
-	ofFill();
-	ofDrawRectangle(0, 0, getWidth(), getHeight());
+	if (bDrawBackground) {
+		ofSetColor(bgColor);
+		ofFill();
+		ofDrawRectangle(0, 0, getWidth(), getHeight());
+	}
 
 	ofSetColor(labelColor);
 	ofDrawBitmapString(label, 5, getHeight()-5);
 
-	ofSetColor(borderColor);
-	ofNoFill();
-    ofSetLineWidth(1);
-	ofDrawRectangle(0, 0, getWidth(), getHeight());
+	if (bDrawBorder) {
+		ofSetColor(borderColor);
+		ofNoFill();
+		ofSetLineWidth(1);
+		ofDrawRectangle(0, 0, getWidth(), getHeight());
+	}
 }
 
 
