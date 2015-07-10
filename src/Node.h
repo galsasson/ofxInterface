@@ -38,7 +38,7 @@ public:
      * If you like naming your components (you should)
      */
 	void setName(const std::string& _name) { name = _name; }
-	const std::string& getName() { return name; }
+	const std::string& getName() const { return name; }
     // search the tree for a node with a specific name, searchDepth of -1 means search all the way down
     Node* getChildWithName(const std::string& searchName, int searchDepth = -1) const;
 	Node* getParentWithName(const std::string& searchName, int searchDepth = -1) const;
@@ -305,6 +305,9 @@ public:
 
 	ofEvent<void> eventDestroy;			// send this event in the destructor
 
+
+	string print(int depth=0) const;
+
 protected:
 	std::string name;
 	ofVec2f size;
@@ -358,5 +361,8 @@ private:
 };
 
 }
+
+
+
 
 #endif /* defined(__osxLingo__GNode__) */

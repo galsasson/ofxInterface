@@ -547,5 +547,21 @@ void Node::placeNextTo(const Node &comp, Node::Side side, float margin)
 	}
 }
 
+string Node::print(int depth) const
+{
+	stringstream ss;
+
+	for (int i=0; i<depth; i++) {
+		ss << "--------";
+	}
+	ss << depth<<"-   "<<getName()<<endl;
+
+	for (Node* node : children) {
+		ss << node->print(depth+1);
+	}
+
+	return ss.str();
+}
+
 } // namespace
 
