@@ -243,7 +243,7 @@ void Node::setCenteredH()
         return;
     }
 
-    setX((((Node*)parent)->getWidth() - getWidth())/2);
+    setX((((Node*)parent)->getLocalWidth() - getLocalWidth())/2);
 }
 
 void Node::setCenteredV()
@@ -252,7 +252,7 @@ void Node::setCenteredV()
         return;
     }
 
-    setY((((Node*)parent)->getHeight() - getHeight())/2);
+    setY((((Node*)parent)->getLocalHeight() - getLocalHeight())/2);
 }
 
 void Node::setCentered()
@@ -261,8 +261,8 @@ void Node::setCentered()
         return;
     }
 
-    setPosition((((Node*)parent)->getWidth() - getWidth())/2,
-                (((Node*)parent)->getHeight() - getHeight())/2);
+    setPosition((((Node*)parent)->getLocalWidth() - getLocalWidth())/2,
+                (((Node*)parent)->getLocalHeight() - getLocalHeight())/2);
 }
 
 void Node::touchDown(int id,  TouchEvent* event)
