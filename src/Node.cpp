@@ -563,5 +563,16 @@ string Node::print(int depth) const
 	return ss.str();
 }
 
+ofVec3f Node::getTranslationTo(ofxInterface::Node *node)
+{
+	return toLocal(node->getGlobalPosition());
+}
+
+float Node::getAngleTo(ofxInterface::Node *node)
+{
+	ofVec3f translate = getTranslationTo(node);
+	return atan2(translate.y, translate.x)*180/PI;
+}
+
 } // namespace
 

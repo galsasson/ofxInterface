@@ -327,6 +327,9 @@ public:
 		}
 	}
 
+	ofVec3f getTranslationTo(Node* node);
+	float getAngleTo(Node* node);
+
 
 protected:
 	std::string name;
