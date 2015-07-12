@@ -308,6 +308,26 @@ public:
 
 	string print(int depth=0) const;
 
+	template <class ListenerClass, typename ArgType>
+	void addEventListener(const string& eventName, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgType&), bool recursive=false)
+	{
+		ofEvent<ArgType>* event = getEventForName<ArgType>(eventName);
+		if (event == NULL) {
+			ofLogError("Node") << "no event named '"<<eventName<<"'";
+			return;
+		}
+
+		(*event) -= Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+		(*event) += Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+
+		if (recursive) {
+			for (Node* n : children) {
+				n->addEventListener(eventName, listener, listenerMethod, recursive);
+			}
+		}
+	}
+
+
 protected:
 	std::string name;
 	ofVec2f size;
@@ -339,6 +359,23 @@ protected:
 	#endif
 
 private:
+	template<typename ArgType>
+	ofEvent<ArgType>* getEventForName(const string& eventName)
+	{
+		if (eventName == "touchdown") {
+			return &eventTouchDown;
+		}
+		else if (eventName == "touchmove") {
+			return &eventTouchMove;
+		}
+		else if (eventName == "touchup") {
+			return &eventTouchUp;
+		}
+		else {
+			return NULL;
+		}
+	}
+
 	bool bSendDestroy;
     
     /******
