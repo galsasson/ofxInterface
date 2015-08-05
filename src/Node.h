@@ -317,8 +317,13 @@ public:
 			return;
 		}
 
+#if (OF_VERSION_MINOR < 9)
 		(*event) -= Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
 		(*event) += Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+#else
+		event->remove(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+		event->add(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+#endif
 
 		if (recursive) {
 			for (Node* n : children) {
