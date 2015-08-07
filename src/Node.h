@@ -317,7 +317,7 @@ public:
 			return;
 		}
 
-#if (OF_VERSION_MINOR < 9)
+#if (OF_VERSION_MINOR < 9) || defined(OF_USES_POCO)
 		(*event) -= Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
 		(*event) += Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
 #else
@@ -328,6 +328,28 @@ public:
 		if (recursive) {
 			for (Node* n : children) {
 				n->addEventListener(eventName, listener, listenerMethod, recursive);
+			}
+		}
+	}
+
+	template <class ListenerClass, typename ArgType>
+	void removeEventListener(const string& eventName, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgType&), bool recursive=false)
+	{
+		ofEvent<ArgType>* event = getEventForName<ArgType>(eventName);
+		if (event == NULL) {
+			ofLogError("Node") << "no event named '"<<eventName<<"'";
+			return;
+		}
+
+#if (OF_VERSION_MINOR < 9) || defined(OF_USES_POCO)
+		(*event) -= Poco::priorityDelegate(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+#else
+		event->remove(listener, listenerMethod, OF_EVENT_ORDER_AFTER_APP);
+#endif
+
+		if (recursive) {
+			for (Node* n : children) {
+				n->removeEventListener(eventName, listener, listenerMethod, recursive);
 			}
 		}
 	}
