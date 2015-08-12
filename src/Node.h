@@ -82,6 +82,9 @@ public:
 	ofEvent<TouchEvent> eventTouchEnter;
 	ofEvent<TouchEvent> eventClick;
 
+	// use this to enforce only one touch at a time (single touch)
+	void setAllowOnlyOneTouch(bool set) { bNodeAllowOneTouch = set; }
+
 
 	/******
 	 * render will render this component and its subtree.
@@ -407,7 +410,10 @@ private:
 	}
 
 	bool bSendDestroy;
-    
+	bool bNodeAllowOneTouch;
+	bool bNodeTouched;
+	int nodeCurrentTouchId;
+
     /******
      * sameDepthOffset:
      * resolve sorting-by-depth ambiguity for nodes on the same plane and tree depth.

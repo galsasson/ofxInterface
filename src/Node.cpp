@@ -48,6 +48,9 @@ Node::Node()
 	data = NULL;
 
 	bSendDestroy = true;
+	bNodeAllowOneTouch = false;
+	bNodeTouched = false;
+	nodeCurrentTouchId = -1;	// not relevant
     sameDepthOffset = ofRandom(0, 1);
 
 #ifdef OFXUINODE_DEBUG
@@ -267,6 +270,13 @@ void Node::setCentered()
 
 void Node::touchDown(int id,  TouchEvent* event)
 {
+	if (bNodeAllowOneTouch && bNodeTouched) {
+		return;
+	}
+
+	bNodeTouched = true;
+	nodeCurrentTouchId = id;
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = touchDownNodeColor;
 #endif
@@ -284,6 +294,10 @@ void Node::touchDown(int id,  TouchEvent* event)
 
 void Node::touchMove(int id,  TouchEvent* event)
 {
+	if (bNodeAllowOneTouch && id != nodeCurrentTouchId) {
+		return;
+	}
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor.a -= 10;
 #endif
@@ -293,6 +307,10 @@ void Node::touchMove(int id,  TouchEvent* event)
 
 void Node::touchUp(int id,  TouchEvent* event)
 {
+	if (bNodeAllowOneTouch && id != nodeCurrentTouchId) {
+		return;
+	}
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = touchUpNodeColor;
 #endif
@@ -309,10 +327,16 @@ void Node::touchUp(int id,  TouchEvent* event)
 		// click is considered only when there is not movement
 		ofNotifyEvent(eventClick, *event);
 	}
+
+	bNodeTouched = false;
 }
 
 void Node::touchExit(int id, TouchEvent *event)
 {
+	if (bNodeAllowOneTouch && id != nodeCurrentTouchId) {
+		return;
+	}
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = touchExitNodeColor;
 #endif
@@ -321,6 +345,10 @@ void Node::touchExit(int id, TouchEvent *event)
 
 void Node::touchEnter(int id, TouchEvent *event)
 {
+	if (bNodeAllowOneTouch && id != nodeCurrentTouchId) {
+		return;
+	}
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = touchEnterNodeColor;
 #endif
@@ -432,7 +460,6 @@ bool Node::contains(const ofVec3f &globalPoint)
 
 	return true;
 }
-
 
 void Node::addChild(Node *child, int insertAt)
 {
