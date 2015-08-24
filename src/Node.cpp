@@ -461,9 +461,9 @@ bool Node::contains(const ofVec3f &globalPoint)
 	return true;
 }
 
-void Node::addChild(Node *child, int insertAt)
+void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransform)
 {
-	child->setParent(*this, true);
+	child->setParent(*this, bMaintainChildGlobalTransform);
 
 	if (insertAt == -1 || insertAt > children.size()) {
 		// append
@@ -476,12 +476,12 @@ void Node::addChild(Node *child, int insertAt)
 	ofNotifyEvent(eventChildAdded, *child, this);
 }
 
-Node* Node::removeChild(Node *child)
+Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 {
 	for (int i=0; i<children.size(); i++)
 	{
 		if (children[i] == child) {
-			return removeChild(i);
+			return removeChild(i, bMaintainChildGlobalTransform);
 		}
 	}
 
@@ -489,7 +489,7 @@ Node* Node::removeChild(Node *child)
 	return NULL;
 }
 
-Node* Node::removeChild(int index)
+Node* Node::removeChild(int index, bool bMaintainChildGlobalTransform)
 {
 	if (index >= children.size()) {
 		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
@@ -498,7 +498,7 @@ Node* Node::removeChild(int index)
 
 	Node *child = children[index];
 	children.erase(children.begin()+index);
-	child->clearParent(true);
+	child->clearParent(bMaintainChildGlobalTransform);
 	ofNotifyEvent(eventChildRemoved, *child, this);
 	return child;
 }

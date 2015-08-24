@@ -46,9 +46,9 @@ public:
     /******
      * Adding & Removing children
      */
-	void addChild(Node* child, int insertAt = -1);		// append by default
-	Node* removeChild(Node *child);
-	Node* removeChild(int index);
+	void addChild(Node* child, int insertAt=-1, bool bMaintainChildGlobalTransform=false);		// append by default
+	Node* removeChild(Node *child, bool bMaintainChildGlobalTransform=false);
+	Node* removeChild(int index, bool bMaintainChildGlobalTransform=false);
 	int getNumChildren() const { return (int)children.size(); }
 	const vector<Node*>& getChildren() const { return children; }
 	bool haveChild(Node* child);
