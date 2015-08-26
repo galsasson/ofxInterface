@@ -49,6 +49,7 @@ Node::Node()
 
 	bSendDestroy = true;
 	bNodeAllowOneTouch = false;
+	bNodeUpdateWhenHidden = false;
 	bNodeTouched = false;
 	nodeCurrentTouchId = -1;	// not relevant
     sameDepthOffset = ofRandom(0, 1);
@@ -213,7 +214,7 @@ void Node::updateSubtree(float dt, bool forceAll)
 			(*it)->updateSubtree(dt, forceAll);
 		}
 		else {
-			if ((*it)->getVisible()) {
+			if ((*it)->getVisible() || (*it)->bNodeUpdateWhenHidden) {
 				(*it)->updateSubtree(dt, forceAll);
 			}
 		}
@@ -230,7 +231,7 @@ void Node::updateSubtreePostOrder(float dt, bool forceAll)
 			(*it)->updateSubtreePostOrder(dt, forceAll);
 		}
 		else {
-			if ((*it)->getVisible()) {
+			if ((*it)->getVisible() || (*it)->bNodeUpdateWhenHidden) {
 				(*it)->updateSubtreePostOrder(dt, forceAll);
 			}
 		}
