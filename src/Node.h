@@ -106,11 +106,12 @@ public:
     void updateSubtree(float dt, bool forceAll=false);
 	void updateSubtreePostOrder(float dt, bool forceAll=false);
 
-	void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
-	void setPosition(const ofVec3f& p) { ofNode::setPosition(p); }
-	void setX(float x) { setPosition(x, getY(), getZ()); }
-	void setY(float y) { setPosition(getX(), y, getZ()); }
-	void setZ(float z) { setPosition(getX(), getY(), z); }
+	virtual void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
+	virtual void setPosition(const ofVec3f& p) { Node::setPosition(p.x, p.y, p.z); }
+
+	virtual void setX(float x) { setPosition(x, getY(), getZ()); }
+	virtual void setY(float y) { setPosition(getX(), y, getZ()); }
+	virtual void setZ(float z) { setPosition(getX(), getY(), z); }
     
     /******
      * For convenience:
@@ -138,8 +139,9 @@ public:
      * that one too if your node is not rectangular, or ignores width and height.
      */
     ofVec2f getSize() const { return size; }
-	void setSize(float w, float h) { size.set(w, h); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
-	void setSize(const ofVec2f& s) { size.set(s); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
+	virtual void setSize(float w, float h) { size.set(w, h); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
+	virtual void setSize(const ofVec2f& s) { Node::setSize(s.x, s.y);}
+
 	float getWidth() const { return size.x; }
 	void setWidth(float w) { size.x = w; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getHeight() const { return size.y; }
