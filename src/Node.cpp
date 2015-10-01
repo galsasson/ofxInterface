@@ -324,8 +324,7 @@ void Node::touchUp(int id,  TouchEvent* event)
 #endif
 
 	ofNotifyEvent(eventTouchUp, *event);
-	if (!event->bHasMoved) {
-		// click is considered only when there is not movement
+	if (contains(event->position)) {
 		ofNotifyEvent(eventClick, *event);
 	}
 

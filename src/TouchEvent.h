@@ -48,8 +48,6 @@ public:
 	// can be used to attached arbitrary data to this touch
 	void *data;
 
-	// for implementing click
-	bool bHasMoved;
 	void onComponentDestroyed() { receiver = NULL; }
 
     EventType type;
