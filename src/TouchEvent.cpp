@@ -24,8 +24,7 @@ TouchEvent::TouchEvent() :
 	velocitySmoothed(),
 	timestamp(ofGetSystemTimeMicros()),
 	prevTimestamp(timestamp),
-	data(NULL),
-	bHasMoved(false)
+	data(NULL)
 {
 }
 

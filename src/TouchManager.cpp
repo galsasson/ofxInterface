@@ -236,10 +236,6 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 		return;
 	}
 
-	if ((event->firstPosition - p).length() > touchHasMovedThreshold)
-	{
-		event->bHasMoved = true;
-	}
 	event->prevPosition = event->position;
 	event->prevVelocity = event->velocity;
 	event->prevTimestamp = event->timestamp;

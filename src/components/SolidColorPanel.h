@@ -43,4 +43,4 @@ private:
     
 }   // namespace
 
-#endif /* defined(__osxLingo__SolidColorPanel__) */
+#endif /* defined(__ofxInterface__SolidColorPanel__) */
