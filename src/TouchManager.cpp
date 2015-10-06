@@ -18,7 +18,6 @@ TouchManager::TouchManager()
 	scene = NULL;
 	velocitySmoothCoeff = 0.25f;
 	touchVelocityDump = 0.6f;
-	touchHasMovedThreshold = 50;
 	bUpdateDispatch = false;
 }
 

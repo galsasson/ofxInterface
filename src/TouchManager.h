@@ -58,8 +58,6 @@ public:
 	// parameters that effect velocity smoothing
 	float velocitySmoothCoeff;
 	float touchVelocityDump;
-	// maximum threshold for click
-	float touchHasMovedThreshold;
 
 	/******
 	 * Touch Rain: random swipes and taps for testing
