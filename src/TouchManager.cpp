@@ -200,6 +200,7 @@ void TouchManager::dispatchTouchDown(int id, const ofVec2f& p)
 	TouchEvent *event = new TouchEvent();
 	event->id = id;
 	event->firstPosition = event->position = event->prevPosition = p;
+	event->travelDistance = 0.0f;
 	touches[id] = event;
 
 	Node *receiver = getComponentUnder(p);
@@ -235,6 +236,7 @@ void TouchManager::dispatchTouchMove(int id, const ofVec2f &p)
 		return;
 	}
 
+	event->travelDistance += fabs(event->prevPosition.x - event->position.x) + fabs(event->prevPosition.y - event->position.y); //manhattan distance to save some cpu
 	event->prevPosition = event->position;
 	event->prevVelocity = event->velocity;
 	event->prevTimestamp = event->timestamp;

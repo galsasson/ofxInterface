@@ -42,6 +42,7 @@ public:
 	ofVec2f velocity;
 	ofVec2f prevVelocity;
 	ofVec2f velocitySmoothed;
+	float travelDistance;
 	unsigned long long timestamp;
 	unsigned long long prevTimestamp;
 
