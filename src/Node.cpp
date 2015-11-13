@@ -544,7 +544,7 @@ void Node::getEnabledSubTreeList(std::list<Node *> &list)
     }
 }
 
-void Node::placeNextTo(const Node &comp, Node::Side side, float margin)
+void Node::placeNextTo(Node &comp, Node::Side side, float margin)
 {
 	switch (side)
 	{

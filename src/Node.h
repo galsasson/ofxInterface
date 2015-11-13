@@ -138,19 +138,19 @@ public:
      * The size is also being used by the drawBounds function, so you should override
      * that one too if your node is not rectangular, or ignores width and height.
      */
-    virtual ofVec2f getSize() const { return size; }
+    virtual ofVec2f getSize() { return size; }
 	virtual void setSize(float w, float h) { size.set(w, h); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	virtual void setSize(const ofVec2f& s) { Node::setSize(s.x, s.y);}
 
-	virtual float getWidth() const { return getSize().x; }
+	virtual float getWidth() { return getSize().x; }
 	void setWidth(float w) { size.x = w; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
-	virtual float getHeight() const { return getSize().y; }
+	virtual float getHeight() { return getSize().y; }
 	void setHeight(float h) { size.y = h; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 
-	float getLocalWidth() const { return getSize().x * getScale().x; }
-	float getLocalHeight() const { return getSize().y * getScale().y; }
-	float getGlobalHeight() const { return getSize().y * getGlobalScale().y; }
-	float getGlobalWidth() const { return getSize().x * getGlobalScale().x; }
+	float getLocalWidth() { return getSize().x * getScale().x; }
+	float getLocalHeight() { return getSize().y * getScale().y; }
+	float getGlobalHeight() { return getSize().y * getGlobalScale().y; }
+	float getGlobalWidth() { return getSize().x * getGlobalScale().x; }
 
 	ofVec2f getCenter(){ return getPosition() + size * 0.5f; }
 	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5f); }
@@ -306,7 +306,7 @@ public:
 		RIGHT,
 		BOTTOM
 	};
-	void placeNextTo(const Node& comp, Node::Side side, float margin=0);
+	void placeNextTo(Node& comp, Node::Side side, float margin=0);
 
 
 	ofEvent<void> eventDestroy;			// send this event in the destructor
