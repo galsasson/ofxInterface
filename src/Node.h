@@ -93,7 +93,7 @@ public:
 	 * but can be used also for offline rendering of any branch of the graph
 	 *
 	 * render is done as follows:
-	 * 1. get list of subtree nodes (only visible ones if forceAll = false)
+	 * 1. get list of subtree nodes (only visible ones if forceAll == false)
 	 * 2. sort by plane value
 	 * 3. call draw from back to front
 	 */
@@ -106,12 +106,24 @@ public:
     void updateSubtree(float dt, bool forceAll=false);
 	void updateSubtreePostOrder(float dt, bool forceAll=false);
 
+	/******
+	 * Position
+	 */
 	virtual void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	virtual void setPosition(const ofVec3f& p) { Node::setPosition(p.x, p.y, p.z); }
-
 	virtual void setX(float x) { setPosition(x, getY(), getZ()); }
 	virtual void setY(float y) { setPosition(getX(), y, getZ()); }
 	virtual void setZ(float z) { setPosition(getX(), getY(), z); }
+
+	/******
+	 * hooks into ofNode to get events for position, scale, and orientation changes
+	 */
+	void onPositionChanged() { ofNotifyEvent(eventPositionChanged, *this); }
+	void onScaleChanged() { ofNotifyEvent(eventScaleChanged, *this); }
+	void onOrientationChanged() { ofNotifyEvent(eventOrientationChanged, *this); }
+	ofEvent<Node> eventPositionChanged;
+	ofEvent<Node> eventScaleChanged;
+	ofEvent<Node> eventOrientationChanged;
     
     /******
      * For convenience:
@@ -141,17 +153,14 @@ public:
     ofVec2f getSize() const { return size; }
 	virtual void setSize(float w, float h) { size.set(w, h); ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	virtual void setSize(const ofVec2f& s) { Node::setSize(s.x, s.y);}
-
 	float getWidth() const { return size.x; }
 	void setWidth(float w) { size.x = w; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
 	float getHeight() const { return size.y; }
 	void setHeight(float h) { size.y = h; ofNotifyEvent(eventNodeSizeChanged, *this, this); }
-
 	float getLocalWidth() const { return size.x * getScale().x; }
 	float getLocalHeight() const { return size.y * getScale().y; }
 	float getGlobalHeight() const { return size.y * getGlobalScale().y; }
 	float getGlobalWidth() const { return size.x * getGlobalScale().x; }
-
 	ofVec2f getCenter(){ return getPosition() + size * 0.5f; }
 	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5f); }
     
