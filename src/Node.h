@@ -20,7 +20,6 @@
   #include "ofxHistoryPlot.h"
 #endif
 
-
 namespace ofxInterface
 {
 
@@ -84,7 +83,6 @@ public:
 
 	// use this to enforce only one touch at a time (single touch)
 	void setAllowOnlyOneTouch(bool set) { bNodeAllowOneTouch = set; }
-	void setUpdateWhenHidden(bool set) { bNodeUpdateWhenHidden = set; }
 
 
 	/******
@@ -101,10 +99,13 @@ public:
 	void renderDebug(bool forceAll = false);	// same as render but calls drawDebug instead of draw.
     
     /******
-     * call the 'update' function of visible children
+     * call the 'update' function of !!visible!! children
      */
-    void updateSubtree(float dt, bool forceAll=false);
+	void updateSubtree(float dt, bool forceAll=false);
 	void updateSubtreePostOrder(float dt, bool forceAll=false);
+
+	// set this for nodes that are rendered offline and still want to update (without forceall),
+	void setUpdateWhenHidden(bool set) { bNodeUpdateWhenHidden = set; }
 
 	/******
 	 * Position
@@ -175,7 +176,7 @@ public:
     /******
      * translate local and global space points
      */
-	virtual ofVec3f toLocal(const ofVec3f& screenPoint);
+	virtual ofVec3f toLocal(const ofVec3f& globalPoint);
 	virtual ofVec3f toGlobal(const ofVec3f& localPoint);
 
     /******
@@ -229,20 +230,17 @@ public:
 	/******
      * Scene sorting
      *
-     * When drawing and interacting with the scene the nodes are sorted 
+	 * When drawing and interacting with the scene the nodes are sorted
      * from bottom to top.
-     * Sorting is achieved using three values:
+     * Sorting is by two values:
      * 1. Plane number:
-     *    Is a float that you can set using setPlane(float).
-     * 2. Depth in scene:
-     *    If the plane number of two nodes is the same, we sort by the 
-     *    depth in the scene-tree.
-     * 3. Same Depth Offset:
-     *    Is used to resolve a case where 1 and 2 are the same and we want 
-     *    consistency between drawing and interaction.
+     *    use setPlane to set the plane (default 0 to all).
+     * 2. Traversal index:
+     *    Traversal in the scene tree where the order is Pre-Order (mrl) for rendering and Post-Order (rlm) for interaction.
      */
 	static bool bottomPlaneFirst(const Node* u, const Node* v)
 	{
+#ifdef OLDSORT
 		if (u->getGlobalPlane() == v->getGlobalPlane()) {
             // same plane
             if (u->getDepthInScene() == v->getDepthInScene()) {
@@ -256,10 +254,14 @@ public:
 		else {
 			return u->getGlobalPlane() < v->getGlobalPlane();
 		}
+#else
+		return u->getGlobalPlane() < v->getGlobalPlane();
+#endif
 	}
 
 	static bool topPlaneFirst(const Node* u, const Node* v)
 	{
+#ifdef OLDSORT
 		if (u->getGlobalPlane() == v->getGlobalPlane()) {
             // same plane
             if (u->getDepthInScene() == v->getDepthInScene()) {
@@ -271,8 +273,11 @@ public:
             }
 		}
 		else {
-			return u->getGlobalPlane() > v->getGlobalPlane();
+			return v->getGlobalPlane() < u->getGlobalPlane();
 		}
+#else
+		return v->getGlobalPlane() < u->getGlobalPlane();
+#endif
 	}
 
 	// sort by depth in scene
@@ -428,14 +433,15 @@ private:
 	bool bNodeTouched;
 	int nodeCurrentTouchId;
 
+#ifdef OLD_SORT
     /******
      * sameDepthOffset:
      * resolve sorting-by-depth ambiguity for nodes on the same plane and tree depth.
      * it is set to a random number between 0 - 1 in the constructor.
      */
     float sameDepthOffset;
-    
-    
+#endif
+
     /******
      * TouchManager will call these on touch events
      * from there functions we dispatch the touch events above

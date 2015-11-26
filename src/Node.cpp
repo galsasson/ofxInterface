@@ -52,7 +52,9 @@ Node::Node()
 	bNodeUpdateWhenHidden = false;
 	bNodeTouched = false;
 	nodeCurrentTouchId = -1;	// not relevant
+#ifdef OLDSORT
     sameDepthOffset = ofRandom(0, 1);
+#endif
 
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor = defaultNodeColor;

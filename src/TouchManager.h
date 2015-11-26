@@ -85,6 +85,7 @@ private:
 	void dispatchTouchMove(int id, const ofVec2f& p);
 	void dispatchTouchUp(int id, const ofVec2f& p);
 
+	// done in post-order right-to-left so list will have the topmost nodes first
 	void fillComponentsUnder(Node* root, const ofVec2f &p, std::list<Node*>& list);
 
 	// touch data per ID
