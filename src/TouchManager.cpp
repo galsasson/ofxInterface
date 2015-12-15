@@ -371,11 +371,16 @@ void TouchManager::fillComponentsUnder(Node* root, const ofVec2f &p, std::list<N
 		return;
 	}
 
+	// handle touch clip
+	if (root->bClipTouch && !root->contains(p)) {
+		return;
+	}
+
 	for (int i=root->children.size()-1; i>=0; i--) {
 		fillComponentsUnder(root->children[i], p, list);
 	}
 
-	if (root->contains(p)) {
+	if (root->bReceivingTouch && root->contains(p)) {
 		list.push_back(root);
 	}
 }

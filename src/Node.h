@@ -69,7 +69,7 @@ public:
 	 *
 	 * override to return if a point is inside the node.
 	 * default implementation works only if your component is 
-	 * rectangular.
+	 * rectangular and you set the size.
 	 */
 	virtual bool contains(const ofVec3f& globalPoint);
 
@@ -106,6 +106,19 @@ public:
 
 	// set this for nodes that are rendered offline and still want to update (without forceall),
 	void setUpdateWhenHidden(bool set) { bNodeUpdateWhenHidden = set; }
+	bool getUpdateWhenHidden() { return bNodeUpdateWhenHidden; }
+	// clip touch means children outside of the node's boundary are disabled
+	void setTouchClip(bool set) { bClipTouch = set; }
+	bool getTouchClip() { return bClipTouch; }
+	// clip render means children outside of the node's boundary will be clipped
+	void setRenderClip(bool set) { bClipRender = set; }
+	bool getRenderClip() { return bClipRender; }
+	bool getGlobalRenderClip();
+	ofRectangle getRenderClipRect();
+	// override these functions if you use some other renderer such as NanoVG
+	virtual void enableScissor(const ofRectangle& rect) { enableScissor(rect.x, rect.y, rect.width, rect.height); }
+	virtual void enableScissor(float x, float y, float w, float h);
+	virtual void disableScissor();
 
 	/******
 	 * Position
@@ -194,6 +207,9 @@ public:
     void setEnabled(bool enable);
     bool getEnabled() const { return bEnabled; }
     bool getEnabledGlobally() const; // this node and all ancestors and enabled (truely enabled)
+	// setReceivingTouch(false) does not prevent decendents in the tree from receiving touch events
+	void setReceivingTouch(bool set) { bReceivingTouch = set; }
+	void getReceivingTouch() { return bReceivingTouch; }
     
     /******
      * visiblity & enable events
@@ -385,6 +401,10 @@ protected:
 
 	bool bVisible;
 	bool bEnabled;
+	bool bReceivingTouch;
+	bool bClipRender;
+	bool bClipTouch;
+
 	vector<Node*> children;
 
 	// plane (instead of z)

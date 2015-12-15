@@ -45,6 +45,9 @@ Node::Node()
 
 	bVisible = true;
 	bEnabled = true;
+	bClipTouch = false;
+	bClipRender = false;
+	bReceivingTouch = true;
 	data = NULL;
 
 	bSendDestroy = true;
@@ -137,7 +140,6 @@ void Node::drawBounds()
 	ofDrawRectangle(0, 0, getWidth(), getHeight());
 }
 
-
 void Node::render(bool forceAll)
 {
 	std::list<Node*> sortedNodes;
@@ -162,14 +164,20 @@ void Node::render(bool forceAll)
 		ofMultMatrix((*it)->getGlobalTransformMatrix());
 		// use anchor
 
+		if ((*it)->getGlobalRenderClip()) {
+			(*it)->enableScissor((*it)->getRenderClipRect());
+		}
+
 		(*it)->draw();
+
+		if ((*it)->getGlobalRenderClip()) {
+			(*it)->disableScissor();
+		}
 
 		ofPopMatrix();
 		ofPopStyle();
 	}
 }
-
-
 
 void Node::renderDebug(bool forceAll)
 {
@@ -202,7 +210,6 @@ void Node::renderDebug(bool forceAll)
 		ofPopStyle();
 	}
 }
-
 
 void Node::updateSubtree(float dt, bool forceAll)
 {
@@ -242,6 +249,58 @@ void Node::updateSubtreePostOrder(float dt, bool forceAll)
 	update(dt);
 }
 
+bool Node::getGlobalRenderClip()
+{
+	if (getParent() != NULL) {
+		return bClipRender || ((Node*)getParent())->getGlobalRenderClip();
+	}
+	else {
+		return bClipRender;
+	}
+}
+
+ofRectangle Node::getRenderClipRect()
+{
+	ofRectangle parentRect;
+	if (getParent() != NULL) {
+		parentRect = ((Node*)getParent())->getRenderClipRect();
+	}
+	ofRectangle rect;
+	if (bClipRender) {
+		ofVec2f pos = getGlobalPosition();
+		rect = ofRectangle(pos.x, pos.y, getGlobalWidth(), getGlobalHeight());
+	}
+
+	if (parentRect.width == 0 || parentRect.height == 0) {
+		if (rect.width == 0 || rect.height == 0) {
+			return ofRectangle();
+		}
+		else {
+			return rect;
+		}
+	}
+	else {
+		if (rect.width == 0 || rect.height == 0) {
+			return parentRect;
+		}
+		else {
+			return parentRect.getIntersection(rect);
+		}
+	}
+}
+
+void Node::enableScissor(float x, float y, float w, float h)
+{
+	ofVec2f local = toLocal(ofVec2f(x, y));
+	ofVec2f localScale = ofVec2f(w, h)*getGlobalScale();
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(local.x, local.y, localScale.x, localScale.y);
+}
+
+void Node::disableScissor()
+{
+	glDisable(GL_SCISSOR_TEST);
+}
 
 void Node::setCenteredH()
 {
