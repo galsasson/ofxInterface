@@ -209,7 +209,7 @@ public:
     bool getEnabledGlobally() const; // this node and all ancestors and enabled (truely enabled)
 	// setReceivingTouch(false) does not prevent decendents in the tree from receiving touch events
 	void setReceivingTouch(bool set) { bReceivingTouch = set; }
-	void getReceivingTouch() { return bReceivingTouch; }
+	bool getReceivingTouch() { return bReceivingTouch; }
     
     /******
      * visiblity & enable events
