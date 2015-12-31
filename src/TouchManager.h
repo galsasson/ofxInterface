@@ -55,6 +55,9 @@ public:
 	// returns a list of all components under p (top most first)
 	std::list<Node*> getAllComponentsUnder(const ofVec2f &p);
 
+	// get all current touches (don't alter the data, use responsibly)
+	const map<int, TouchEvent*>& getTouches() const { return touches; }
+
 	// parameters that effect velocity smoothing
 	float velocitySmoothCoeff;
 	float touchVelocityDump;
