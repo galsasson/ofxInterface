@@ -364,6 +364,17 @@ std::list<Node*> TouchManager::getAllComponentsUnder(const ofVec2f &p)
 	list.sort(Node::topPlaneFirst);
 	return list;
 }
+	
+vector<const TouchEvent*> TouchManager::getTouchesForNode(ofxInterface::Node *node)
+{
+	vector<const TouchEvent*> results;
+	for (auto& touch: touches) {
+		if (touch.second->receiver == node) {
+			results.push_back(touch.second);
+		}
+	}
+	return results;
+}
 
 void TouchManager::fillComponentsUnder(Node* root, const ofVec2f &p, std::list<Node *> &list)
 {
