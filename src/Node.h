@@ -26,6 +26,7 @@ namespace ofxInterface
 class Node : public ofNode
 {
 	friend class TouchManager;
+	friend class TouchEvent;
 	
 public:
 	virtual ~Node();

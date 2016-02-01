@@ -38,10 +38,18 @@ TouchEvent::~TouchEvent()
 void TouchEvent::setReceiver(Node* comp)
 {
 	if (receiver != NULL) {
+		if (comp->bNodeAllowOneTouch && comp->bNodeTouched) {
+			ofLogWarning("TouchEvent") << "cannot set receiver to node: "<<this<<", node already touched";
+			return;
+		}
+		// if we are transferring the receiver to be a different node
 		ofRemoveListener(receiver->eventDestroy, this, &TouchEvent::onComponentDestroyed);
+		receiver->bNodeTouched = false;
 	}
 
 	receiver = comp;
+	receiver->bNodeTouched = true;
+	receiver->nodeCurrentTouchId = id;
 	ofAddListener(receiver->eventDestroy, this, &TouchEvent::onComponentDestroyed);
 }
 

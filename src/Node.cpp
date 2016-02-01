@@ -332,7 +332,7 @@ void Node::setCentered()
 
 void Node::touchDown(int id,  TouchEvent* event)
 {
-	if (bNodeAllowOneTouch && bNodeTouched) {
+	if (bNodeAllowOneTouch && bNodeTouched && nodeCurrentTouchId!=id) {
 		return;
 	}
 
