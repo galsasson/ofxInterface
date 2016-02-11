@@ -32,8 +32,8 @@ Node::~Node()
 		ofNotifyEvent(eventDestroy);
 	}
 
-	for (int i=0; i<children.size(); i++) {
-		delete children[i];
+	while (!childNodes.empty()) {
+		delete removeChild(0);
 	}
 }
 
@@ -83,9 +83,9 @@ Node* Node::getChildWithName(const std::string &searchName, int searchDepth) con
         return NULL;
     }
 
-    for (int i=0; i<children.size(); i++)
+    for (int i=0; i<childNodes.size(); i++)
     {
-        Node* node = children[i]->getChildWithName(searchName, searchDepth-1);
+        Node* node = childNodes[i]->getChildWithName(searchName, searchDepth-1);
         if (node != NULL) {
             return node;
         }
@@ -217,7 +217,7 @@ void Node::updateSubtree(float dt, bool forceAll)
 
     std::vector<Node*>::iterator it;
     
-    for (it = children.begin(); it != children.end(); it++)
+    for (it = childNodes.begin(); it != childNodes.end(); it++)
     {
 		if (forceAll) {
 			(*it)->updateSubtree(dt, forceAll);
@@ -234,7 +234,7 @@ void Node::updateSubtreePostOrder(float dt, bool forceAll)
 {
 	std::vector<Node*>::iterator it;
 
-	for (it = children.begin(); it != children.end(); it++)
+	for (it = childNodes.begin(); it != childNodes.end(); it++)
 	{
 		if (forceAll) {
 			(*it)->updateSubtreePostOrder(dt, forceAll);
@@ -526,12 +526,12 @@ void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransfor
 {
 	child->setParent(*this, bMaintainChildGlobalTransform);
 
-	if (insertAt == -1 || insertAt > children.size()) {
+	if (insertAt == -1 || insertAt > childNodes.size()) {
 		// append
-		children.push_back(child);
+		childNodes.push_back(child);
 	}
 	else {
-		children.insert(children.begin()+insertAt, child);
+		childNodes.insert(childNodes.begin()+insertAt, child);
 	}
 
 	ofNotifyEvent(eventChildAdded, *child, this);
@@ -539,9 +539,9 @@ void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransfor
 
 Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 {
-	for (int i=0; i<children.size(); i++)
+	for (int i=0; i<childNodes.size(); i++)
 	{
-		if (children[i] == child) {
+		if (childNodes[i] == child) {
 			return removeChild(i, bMaintainChildGlobalTransform);
 		}
 	}
@@ -552,13 +552,13 @@ Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 
 Node* Node::removeChild(int index, bool bMaintainChildGlobalTransform)
 {
-	if (index >= children.size()) {
+	if (index >= childNodes.size()) {
 		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
 		return NULL;
 	}
 
-	Node *child = children[index];
-	children.erase(children.begin()+index);
+	Node *child = childNodes[index];
+	childNodes.erase(childNodes.begin()+index);
 	child->clearParent(bMaintainChildGlobalTransform);
 	ofNotifyEvent(eventChildRemoved, *child, this);
 	return child;
@@ -566,16 +566,16 @@ Node* Node::removeChild(int index, bool bMaintainChildGlobalTransform)
 
 bool Node::haveChild(ofxInterface::Node *child)
 {
-	return find(children.begin(), children.end(), child) != children.end();
+	return find(childNodes.begin(), childNodes.end(), child) != childNodes.end();
 }
 
 void Node::getSubTreeList(std::list<Node*>& list)
 {
 	list.push_back(this);
 
-	for (int i=0; i<children.size(); i++)
+	for (int i=0; i<childNodes.size(); i++)
 	{
-		children[i]->getSubTreeList(list);
+		childNodes[i]->getSubTreeList(list);
 	}
 }
 
@@ -587,8 +587,8 @@ void Node::getVisibleSubTreeList(std::list<Node*>& list)
 	
 	list.push_back(this);
 
-	for (int i=0; i<children.size(); i++) {
-		children[i]->getVisibleSubTreeList(list);
+	for (int i=0; i<childNodes.size(); i++) {
+		childNodes[i]->getVisibleSubTreeList(list);
 	}
 }
     
@@ -600,8 +600,8 @@ void Node::getEnabledSubTreeList(std::list<Node *> &list)
     
     list.push_back(this);
     
-    for (int i=0; i<children.size(); i++) {
-        children[i]->getEnabledSubTreeList(list);
+    for (int i=0; i<childNodes.size(); i++) {
+        childNodes[i]->getEnabledSubTreeList(list);
     }
 }
 
@@ -644,7 +644,7 @@ string Node::print(int depth) const
 	}
 	ss << depth<<"-   "<<getName()<<endl;
 
-	for (Node* node : children) {
+	for (Node* node : childNodes) {
 		ss << node->print(depth+1);
 	}
 

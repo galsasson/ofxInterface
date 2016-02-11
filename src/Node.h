@@ -44,13 +44,13 @@ public:
 	Node* getParentWithName(const std::string& searchName, int searchDepth = -1) const;
 
     /******
-     * Adding & Removing children
+     * Adding & Removing childNodes
      */
 	void addChild(Node* child, int insertAt=-1, bool bMaintainChildGlobalTransform=false);		// append by default
 	Node* removeChild(Node *child, bool bMaintainChildGlobalTransform=false);
 	Node* removeChild(int index, bool bMaintainChildGlobalTransform=false);
-	int getNumChildren() const { return (int)children.size(); }
-	const vector<Node*>& getChildren() const { return children; }
+	int getNumChildren() const { return (int)childNodes.size(); }
+	const vector<Node*>& getChildren() const { return childNodes; }
 	bool haveChild(Node* child);
 
 	ofEvent<ofxInterface::Node> eventChildRemoved;
@@ -237,7 +237,7 @@ public:
 			return 0;
 		}
 	}
-	// returns a list representation of all children in sub graph
+	// returns a list representation of all childNodes in sub graph
 	void getSubTreeList(std::list<Node*>& list);
 	// returns a list of visible elements in subtree
 	void getVisibleSubTreeList(std::list<Node*>& list);
@@ -364,7 +364,7 @@ public:
 #endif
 
 		if (recursive) {
-			for (Node* n : children) {
+			for (Node* n : childNodes) {
 				n->addEventListener(eventName, listener, listenerMethod, recursive);
 			}
 		}
@@ -386,7 +386,7 @@ public:
 #endif
 
 		if (recursive) {
-			for (Node* n : children) {
+			for (Node* n : childNodes) {
 				n->removeEventListener(eventName, listener, listenerMethod, recursive);
 			}
 		}
@@ -406,7 +406,7 @@ protected:
 	bool bClipRender;
 	bool bClipTouch;
 
-	vector<Node*> children;
+	vector<Node*> childNodes;
 
 	// plane (instead of z)
 	// small value means back, large value is front

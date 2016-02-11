@@ -387,8 +387,8 @@ void TouchManager::fillComponentsUnder(Node* root, const ofVec2f &p, std::list<N
 		return;
 	}
 
-	for (int i=root->children.size()-1; i>=0; i--) {
-		fillComponentsUnder(root->children[i], p, list);
+	for (int i=root->childNodes.size()-1; i>=0; i--) {
+		fillComponentsUnder(root->childNodes[i], p, list);
 	}
 
 	if (root->bReceivingTouch && root->contains(p)) {
