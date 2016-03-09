@@ -84,6 +84,8 @@ public:
 
 	// use this to enforce only one touch at a time (single touch)
 	void setAllowOnlyOneTouch(bool set) { bNodeAllowOneTouch = set; }
+	bool isTouched() { return bNodeTouched; }
+	int getLastTouchId() { return nodeCurrentTouchId; }
 
 
 	/******
