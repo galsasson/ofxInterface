@@ -32,12 +32,23 @@ public:
 	int setup(ofNode* src, ofNode* dst, float duration);				// node to node swipe
 	int setup(const ofPolyline& path, float duration);					// arbitrary path swipe
 
+
 	/******
 	 * Call these to actually start/stop the touch
 	 */
 	void play();
 	void pause();
 	void stop(bool fireDoneEvent=false);
+
+
+	/******
+	 * Call these to change the touch parameters
+	 */
+	float getDuration() { return duration; }
+	void setDuration(float sec) { duration = sec; }
+	ofPolyline getPath() { return path; }
+	void setPath(const ofPolyline& newPath) { path = newPath; }
+
 
 	/******
 	 * Set this to draw a finger texture with this touch
