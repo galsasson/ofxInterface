@@ -129,6 +129,7 @@ private:
 	void createRandomTaps(unsigned int n);
 	ofVec2f getRandomTouchPosition();
 
+public:
 	// singleton stuff
 	~TouchManager();
 	TouchManager();
