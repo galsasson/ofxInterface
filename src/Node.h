@@ -328,8 +328,8 @@ public:
 
 
 	// use this to hold any data
-	void setData(void* _data) { data = _data; }
-	void* getData() { return data; }
+	void setData(shared_ptr<void> _data) { data = _data; }
+	shared_ptr<void> getData() { return data; }
 
 	//check for leaks
 	static int getNumNodesAlive();
@@ -415,7 +415,7 @@ protected:
 	float plane;
 
     // hold custom data
-	void* data;
+	shared_ptr<void> data;
 
 
 	// debug stuff
