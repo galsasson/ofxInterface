@@ -418,7 +418,11 @@ void Node::touchEnter(int id, TouchEvent *event)
 
 ofVec3f Node::toLocal(const ofVec3f &screenPoint)
 {
-	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
+	#ifdef GLM_SWIZZLE //this version of OF is using GLM for math ops
+	return (ofVec3f)screenPoint * glm::inverse(ofNode::getGlobalTransformMatrix());
+	#else
+	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().inverse();
+	#endif
 }
     
 ofVec3f Node::toGlobal(const ofVec3f &localPoint)
