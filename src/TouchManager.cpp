@@ -97,7 +97,7 @@ void TouchManager::draw(){
 		if(it->second){
 			ofSetColor(255, 128);
 			ofDrawCircle(it->second->position, 20);
-			points.addVertex(it->second->position);
+			points.addVertex(ofVec3f(it->second->position));
 			ofSetColor(255);
 			ofDrawBitmapString(ofToString(it->first), it->second->position + ofVec2f(5, -3));
 		}

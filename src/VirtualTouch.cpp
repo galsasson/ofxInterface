@@ -40,8 +40,8 @@ int VirtualTouch::setup(ofNode *src, ofNode *dst, float duration)
 int VirtualTouch::setup(const ofVec2f &src, const ofVec2f &dst, float duration)
 {
 	ofPolyline line;
-	line.addVertex(src);
-	line.addVertex(dst);
+	line.addVertex(ofVec3f(src));
+	line.addVertex(ofVec3f(dst));
 	return setup(line, duration);
 }
 
@@ -131,7 +131,7 @@ void VirtualTouch::update(float dt)
 	// update currentPos and do touch-up if needed
 
 	if (time >= duration) {
-		vector<ofPoint>& points = path.getVertices();
+		auto & points = path.getVertices();
 		currentPos = points[points.size()-1];
 		stop(true);		// performs touch-up and fires eventDone
 	}
