@@ -421,7 +421,7 @@ ofVec3f Node::toLocal(const ofVec3f &screenPoint)
 	#ifdef GLM_SWIZZLE //this version of OF is using GLM for math ops
 	return (ofVec3f)screenPoint * glm::inverse(ofNode::getGlobalTransformMatrix());
 	#else
-	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().inverse();
+	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
 	#endif
 }
     
