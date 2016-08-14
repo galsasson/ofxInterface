@@ -29,6 +29,8 @@ public:
     }
 
 	void setup(Node* root, bool dispatchOnUpdate = false);
+	void setName(const string& n) { name = n; }
+	const string& getName() const { return name; }
 	
 	void update(float dt = ofGetLastFrameTime());
 	void draw();
@@ -78,6 +80,7 @@ public:
 	void setTouchRainArea(const ofRectangle& rect);
 
 private:
+	string name;
 	Node *scene;
 	bool bUpdateDispatch;
 
