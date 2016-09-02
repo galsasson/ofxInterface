@@ -128,9 +128,9 @@ public:
 	 */
 	virtual void setPosition(float x=0, float y=0, float z=0) { ofNode::setPosition(x, y, z); }
 	virtual void setPosition(const ofVec3f& p) { Node::setPosition(p.x, p.y, p.z); }
-	virtual void setX(float x) { setPosition(x, getY(), getZ()); }
-	virtual void setY(float y) { setPosition(getX(), y, getZ()); }
-	virtual void setZ(float z) { setPosition(getX(), getY(), z); }
+	virtual void setX(float x) { Node::setPosition(x, getY(), getZ()); }
+	virtual void setY(float y) { Node::setPosition(getX(), y, getZ()); }
+	virtual void setZ(float z) { Node::setPosition(getX(), getY(), z); }
 
 	/******
 	 * hooks into ofNode to get events for position, scale, and orientation changes
