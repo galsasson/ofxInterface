@@ -35,7 +35,7 @@ TouchEvent::~TouchEvent()
 	}
 }
 
-void TouchEvent::setReceiver(Node* comp)
+void TouchEvent::setReceiver(Node* comp, bool reportUpOnPrevious)
 {
 	if (receiver != NULL) {
 		if (comp->bNodeAllowOneTouch && comp->bNodeTouched) {
@@ -43,6 +43,9 @@ void TouchEvent::setReceiver(Node* comp)
 			return;
 		}
 		// if we are transferring the receiver to be a different node
+		if (reportUpOnPrevious) {
+			ofNotifyEvent(receiver->eventTouchUp, *this, this);
+		}
 		ofRemoveListener(receiver->eventDestroy, this, &TouchEvent::onComponentDestroyed);
 		receiver->bNodeTouched = false;
 	}

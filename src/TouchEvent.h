@@ -31,7 +31,7 @@ public:
 	TouchEvent();
 	~TouchEvent();
 	
-	void setReceiver(Node* comp);
+	void setReceiver(Node* comp, bool reportUpOnPrevious=false);
 
 	int id;
 	Node* receiver;			// the touch was first seen above this component
