@@ -30,7 +30,8 @@ public:
 
 	TouchEvent();
 	~TouchEvent();
-	
+
+	// can be called to change the receiver of this TouchEvent
 	void setReceiver(Node* comp, bool reportUpOnPrevious=false);
 
 	int id;
