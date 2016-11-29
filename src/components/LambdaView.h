@@ -18,7 +18,7 @@ namespace ofxInterface
 class LambdaView : public Node
 {
 public:
-	LambdaView();
+	LambdaView(const string& name="");
 	void setDrawFunction(std::function<void(void)> _func);
 	void setUpdateFunction(std::function<void(float)> _func);
 	void setTouchDownFunction(std::function<void(ofxInterface::TouchEvent&)> _func);

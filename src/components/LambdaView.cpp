@@ -11,8 +11,9 @@
 namespace ofxInterface
 {
 
-LambdaView::LambdaView()
+LambdaView::LambdaView(const string& name)
 {
+	setName(name);
 	ofAddListener(eventTouchDown, this, &LambdaView::onTouchDown);
 	ofAddListener(eventTouchMove, this, &LambdaView::onTouchMove);
 	ofAddListener(eventTouchUp, this, &LambdaView::onTouchUp);
