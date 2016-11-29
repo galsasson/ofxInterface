@@ -20,5 +20,6 @@
 #include "TextureButton.h"
 #include "BitmapTextButton.h"
 #include "SolidColorPanel.h"
+#include "LambdaView.h"
 
 #endif
