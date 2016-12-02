@@ -28,7 +28,7 @@ void BitmapTextButton::setup(const string &_label)
 void BitmapTextButton::draw()
 {
 	if (bDrawBackground) {
-		ofSetColor(bgColor);
+		ofSetColor(bgColor * (isTouched()?0.5:1));
 		ofFill();
 		ofDrawRectangle(0, 0, getWidth(), getHeight());
 	}

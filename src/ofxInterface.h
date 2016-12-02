@@ -17,9 +17,9 @@
 /******
  * include default components
  */
-#include "TextureButton.h"
-#include "BitmapTextButton.h"
-#include "SolidColorPanel.h"
-#include "LambdaView.h"
+#include "components/TextureButton.h"
+#include "components/BitmapTextButton.h"
+#include "components/SolidColorPanel.h"
+#include "components/LambdaView.h"
 
 #endif
