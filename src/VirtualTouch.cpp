@@ -108,7 +108,7 @@ void VirtualTouch::stop(bool fireDoneEvent)
 	}
 }
 
-void VirtualTouch::setFingerTexture(ofTexture *tex, ofColor c, float rotation, float scale, ofVec2f hotSpotAnchor)
+void VirtualTouch::setFingerTexture(ofTexture *tex, const ofColor& c, float rotation, float scale, ofVec2f hotSpotAnchor)
 {
 	fingerTex = tex;
 	fingerTexColor = c;

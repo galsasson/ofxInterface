@@ -54,7 +54,7 @@ public:
 	 * Set this to draw a finger texture with this touch
 	 * hotSpotAnchor is (0-1, 0-1)
 	 */
-	void setFingerTexture(ofTexture* tex, ofColor c=ofColor::white, float rotation=0.0f, float scale=1.0f, ofVec2f hotSpotAnchor=ofVec2f());
+	void setFingerTexture(ofTexture* tex, const ofColor& c=ofColor(255), float rotation=0.0f, float scale=1.0f, ofVec2f hotSpotAnchor=ofVec2f());
 
 	int getId() { return id; }
 	bool isDown() { return bDown; }
