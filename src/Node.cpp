@@ -215,35 +215,57 @@ void Node::updateSubtree(float dt, bool forceAll)
 {
 	update(dt);
 
-    std::vector<Node*>::iterator it;
-    
-    for (it = children.begin(); it != children.end(); it++)
-    {
+	nodeUpdateMutex.lock();
+	for (Node* n: children) {
 		if (forceAll) {
-			(*it)->updateSubtree(dt, forceAll);
+			n->updateSubtree(dt, forceAll);
 		}
-		else {
-			if ((*it)->getVisible() || (*it)->bNodeUpdateWhenHidden) {
-				(*it)->updateSubtree(dt, forceAll);
-			}
+		else if (n->getVisible() || n->bNodeUpdateWhenHidden) {
+			n->updateSubtree(dt, forceAll);
 		}
-    }
+	}
+	nodeUpdateMutex.unlock();
+
+	// add and remove nodes
+	if (!nodesToAdd.empty()) {
+		for (AddRemoveArgs& args: nodesToAdd) {
+			addChild(args.n, args.at, args.bMaintainTransform);
+		}
+		nodesToAdd.clear();
+	}
+	if (!nodesToRemove.empty()) {
+		for (AddRemoveArgs& args: nodesToRemove) {
+			removeChild(args.at, args.bMaintainTransform);
+		}
+		nodesToRemove.clear();
+	}
 }
 
 void Node::updateSubtreePostOrder(float dt, bool forceAll)
 {
-	std::vector<Node*>::iterator it;
-
-	for (it = children.begin(); it != children.end(); it++)
-	{
+	nodeUpdateMutex.lock();
+	for (Node* n: children) {
 		if (forceAll) {
-			(*it)->updateSubtreePostOrder(dt, forceAll);
+			n->updateSubtreePostOrder(dt, forceAll);
 		}
-		else {
-			if ((*it)->getVisible() || (*it)->bNodeUpdateWhenHidden) {
-				(*it)->updateSubtreePostOrder(dt, forceAll);
-			}
+		else if (n->getVisible() || n->bNodeUpdateWhenHidden) {
+			n->updateSubtreePostOrder(dt, forceAll);
 		}
+	}
+	nodeUpdateMutex.unlock();
+
+	// add and remove nodes
+	if (!nodesToAdd.empty()) {
+		for (AddRemoveArgs& args: nodesToAdd) {
+			addChild(args.n, args.at, args.bMaintainTransform);
+		}
+		nodesToAdd.clear();
+	}
+	if (!nodesToRemove.empty()) {
+		for (AddRemoveArgs& args: nodesToRemove) {
+			removeChild(args.at, args.bMaintainTransform);
+		}
+		nodesToRemove.clear();
 	}
 
 	update(dt);
@@ -524,6 +546,19 @@ bool Node::contains(const ofVec3f &globalPoint)
 
 void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransform)
 {
+	if (!nodeUpdateMutex.try_lock()) {
+		// this nodes now updates its children, save and add after the update
+		AddRemoveArgs args;
+		args.n = child;
+		args.at = insertAt;
+		args.bMaintainTransform = bMaintainChildGlobalTransform;
+		nodesToAdd.push_back(args);
+		return;
+	}
+	else {
+		nodeUpdateMutex.unlock();
+	}
+
 	child->setParent(*this, bMaintainChildGlobalTransform);
 
 	if (insertAt == -1 || insertAt > children.size()) {
@@ -537,7 +572,7 @@ void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransfor
 	ofNotifyEvent(eventChildAdded, *child, this);
 }
 
-Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
+void Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 {
 	for (int i=0; i<children.size(); i++)
 	{
@@ -547,21 +582,30 @@ Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 	}
 
 	ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-	return NULL;
 }
 
-Node* Node::removeChild(int index, bool bMaintainChildGlobalTransform)
+void Node::removeChild(int index, bool bMaintainChildGlobalTransform)
 {
+	if (!nodeUpdateMutex.try_lock()) {
+		AddRemoveArgs args;
+		args.at = index;
+		args.bMaintainTransform = bMaintainChildGlobalTransform;
+		nodesToRemove.push_back(args);
+		return;
+	}
+	else {
+		nodeUpdateMutex.unlock();
+	}
+
 	if (index >= children.size()) {
 		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-		return NULL;
+		return;
 	}
 
 	Node *child = children[index];
 	children.erase(children.begin()+index);
 	child->clearParent(bMaintainChildGlobalTransform);
 	ofNotifyEvent(eventChildRemoved, *child, this);
-	return child;
 }
 
 bool Node::haveChild(ofxInterface::Node *child)

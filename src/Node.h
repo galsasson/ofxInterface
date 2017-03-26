@@ -46,8 +46,8 @@ public:
      * Adding & Removing children
      */
 	void addChild(Node* child, int insertAt=-1, bool bMaintainChildGlobalTransform=false);		// append by default
-	Node* removeChild(Node *child, bool bMaintainChildGlobalTransform=false);
-	Node* removeChild(int index, bool bMaintainChildGlobalTransform=false);
+	void removeChild(Node *child, bool bMaintainChildGlobalTransform=false);
+	void removeChild(int index, bool bMaintainChildGlobalTransform=false);
 	int getNumChildren() const { return (int)children.size(); }
 	const vector<Node*>& getChildren() const { return children; }
 	bool haveChild(Node* child);
@@ -452,6 +452,17 @@ private:
 	bool bNodeUpdateWhenHidden;
 	bool bNodeTouched;
 	int nodeCurrentTouchId;
+
+	// if addChild or removeChild are called while the node is updating
+	// its children, the add/remove will be saved and executed after the update
+	std::mutex nodeUpdateMutex;
+	struct AddRemoveArgs {
+		Node* n;
+		int at;
+		bool bMaintainTransform;
+	};
+	vector<AddRemoveArgs> nodesToAdd;
+	vector<AddRemoveArgs> nodesToRemove;
 
 #ifdef OLD_SORT
     /******
