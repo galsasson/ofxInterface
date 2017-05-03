@@ -24,6 +24,11 @@ void LambdaView::setDrawFunction(std::function<void(void)> _func)
 	drawFunc = _func;
 }
 
+void LambdaView::setDrawDebugFunction(std::function<void(void)> _func)
+{
+	drawDebugFunc = _func;
+}
+
 void LambdaView::setUpdateFunction(std::function<void(float)> _func)
 {
 	updateFunc = _func;
@@ -53,6 +58,13 @@ void LambdaView::draw()
 {
 	if (drawFunc) {
 		drawFunc();
+	}
+}
+
+void LambdaView::drawDebug()
+{
+	if (drawDebugFunc) {
+		drawDebugFunc();
 	}
 }
 
