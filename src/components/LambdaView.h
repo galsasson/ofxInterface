@@ -20,6 +20,7 @@ class LambdaView : public Node
 public:
 	LambdaView(const string& name="");
 	void setDrawFunction(std::function<void(void)> _func);
+	void setDrawDebugFunction(std::function<void(void)> _func);
 	void setUpdateFunction(std::function<void(float)> _func);
 	void setTouchDownFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
 	void setTouchMoveFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
@@ -27,10 +28,12 @@ public:
 	void setContainsFunction(std::function<bool(const ofVec3f& global)> _func);
 	void update(float dt);
 	void draw();
+	void drawDebug();
 	bool contains(const ofVec3f& global);
 	
 private:
 	std::function<void(void)> drawFunc;
+	std::function<void(void)> drawDebugFunc = [&](){Node::drawDebug();};
 	std::function<void(float)> updateFunc;
 	std::function<void(ofxInterface::TouchEvent&)> touchDownFunc;
 	std::function<void(ofxInterface::TouchEvent&)> touchMoveFunc;
