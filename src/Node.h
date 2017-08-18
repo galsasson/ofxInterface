@@ -179,8 +179,10 @@ public:
 	float getGlobalHeight() { return getSize().y * getGlobalScale().y; }
 	float getGlobalWidth() { return getSize().x * getGlobalScale().x; }
 
-	ofVec2f getCenter(){ return getPosition() + size * 0.5f; }
-	ofVec2f getGlobalCenter(){ return toGlobal(getPosition() + size * 0.5f); }
+	/* Those are deprecated as their naming is misleading and results greatly depned on who the caller is
+	ofVec2f getCenter(){ return ofVec2f(getX() + size.x * 0.5, getY() + size.y * 0.5); }
+	ofVec2f getGlobalCenter(){ return toGlobal(getCenter()); }
+	*/
 
 	virtual ofRectangle getBounds() { return ofRectangle(getX(), getY(), getWidth(), getHeight()); }
     
