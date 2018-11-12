@@ -10,6 +10,7 @@
 #define __ofxInterface_h__
 
 #include "Node.h"
+#include "AnimatableNode.h"
 #include "TouchEvent.h"
 #include "TouchManager.h"
 #include "VirtualTouch.h"
