@@ -67,8 +67,47 @@ Node::Node()
 	historyPlot = NULL;
 #endif
 }
+	
+	Node::Node(const Node& mom) : ofNode(mom)
+{
+	name = mom.name;
+	plane = mom.plane;
+	size = mom.size;
+	bVisible = mom.bVisible;
+	bEnabled = mom.bEnabled;
+	bClipTouch = mom.bClipTouch;
+	bClipRender = mom.bClipRender;
+	bReceivingTouch = mom.bReceivingTouch;
+	setData(mom.data);
+	bSendDestroy = mom.bSendDestroy;
+	bNodeAllowOneTouch = mom.bNodeAllowOneTouch;
+	bNodeUpdateWhenHidden = mom.bNodeUpdateWhenHidden;
+	bNodeTouched = mom.bNodeTouched;
+	nodeCurrentTouchId = -1;
+#ifdef OLDSORT
+	sameDepthOffset = ofRandom(0, 1);
+#endif
+	
+#ifdef OFXUINODE_DEBUG
+	debugBorderColor = mom.debugBorderColor;
+#endif
+	
+#ifdef USE_OFX_HISTORY_PLOT
+	historyPlot = NULL;
+#endif
+	
+	// copy children
+	for (auto& c: mom.getChildren()) {
+		addChild(c->clone());
+	}
 
-
+}
+	
+Node* Node::clone()
+{
+	return new Node(*this);
+}
+	
 int Node::getNumNodesAlive(){
 	return numInterfaceNodes;
 }

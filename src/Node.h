@@ -31,6 +31,8 @@ class Node : public ofNode
 public:
 	virtual ~Node();
 	Node();
+	Node(const Node& mom);
+	virtual Node* clone();
 
     /******
      * Node Names:
