@@ -80,11 +80,11 @@ public:
 	float calcAt(float t) {
 		switch ( type ) {
 				
-			case EASE_IN_EASE_OUT: return(0.5f - 0.5f * cosf( M_PI * t ));
-			case EASE_IN: return 1.0f + sinf( M_PI_2 * t - M_PI_2);
-			case EASE_OUT: return sinf( M_PI_2 * t );
+			case EASE_IN_EASE_OUT: return(0.5f - 0.5f * cosf( PI * t ));
+			case EASE_IN: return 1.0f + sinf( HALF_PI * t - HALF_PI);
+			case EASE_OUT: return sinf( HALF_PI * t );
 			case LINEAR: return t;
-			case TANH: return 0.5f + 0.5f * tanh( 2.0f * M_PI * t - M_PI ) * 1.00374187319732; break;
+			case TANH: return 0.5f + 0.5f * tanh( 2.0f * PI * t - PI ) * 1.00374187319732; break;
 			case SINH: return 0.5f + 0.23482f * sinh( 3.0f * t - 1.5f );
 			case SQUARE: return (t < 0.5f) ? 0.0f : 1.0f;
 			case QUADRATIC_EASE_IN: return t * t;
