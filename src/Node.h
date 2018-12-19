@@ -58,6 +58,11 @@ public:
 	ofEvent<ofxInterface::Node> eventChildRemoved;
 	ofEvent<ofxInterface::Node> eventChildAdded;
 
+	/******
+	 * Sort children
+	 */
+	void sortChildren(const function<bool(const Node* a, const Node* b)>& compareFunction);
+
 	// functions to override
 	//
 	virtual void update(float dt) {}	// please override with update code

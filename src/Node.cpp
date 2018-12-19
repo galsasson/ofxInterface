@@ -612,6 +612,11 @@ bool Node::haveChild(ofxInterface::Node *child)
 	return find(childNodes.begin(), childNodes.end(), child) != childNodes.end();
 }
 
+void Node::sortChildren(const function<bool(const Node* a, const Node* b)>& compareFunction)
+{
+	std::sort(childNodes.begin(), childNodes.end(), compareFunction);
+}
+
 void Node::getSubTreeList(std::list<Node*>& list)
 {
 	list.push_back(this);
