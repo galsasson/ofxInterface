@@ -77,6 +77,7 @@ public:
 		}
 	}
 	Curve(float p[4]) : Curve(CUBIC_BEZIER_PARAM, p[0], p[1], p[2], p[3]) {}
+	Curve(float a, float b, float c, float d) : Curve(CUBIC_BEZIER_PARAM, a, b, c, d) {}
 	float calcAt(float t) {
 		switch ( type ) {
 				
