@@ -1,0 +1,7 @@
+ofxAnimatable
+ofxAssetManager
+ofxEasing
+ofxFontStash2
+ofxInterface
+ofxIO
+ofxPoco
