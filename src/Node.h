@@ -23,6 +23,15 @@
 namespace ofxInterface
 {
 
+	struct NodeSettings {
+		string name;
+		ofVec2f position;
+		ofVec2f size;
+		bool renderClip = false;
+		bool isActive = true;
+		float plane = 10;
+};
+
 class Node : public ofNode
 {
 	friend class TouchManager;
@@ -33,6 +42,8 @@ public:
 	Node();
 	Node(const Node& mom);
 	virtual Node* clone();
+
+	void setup(NodeSettings settings);
 
     /******
      * Node Names:
@@ -65,8 +76,10 @@ public:
 
 	// functions to override
 	//
-	virtual void update(float dt) {}	// please override with update code
+	virtual void update(float dt) {};	// please override with update code
 	virtual void draw() {};		// please override! draw your object in local space
+	virtual void preDraw() {};		// affects group rendering, executed before the draw function
+	virtual void postDraw() {};		// affects group rendering, executed after the draw function
 
 	// for debugging
 	virtual void drawDebug();	 // debug debugging stuff (will be called by renderDebug)
@@ -89,6 +102,13 @@ public:
 	ofEvent<TouchEvent> eventTouchEnter;
 	ofEvent<TouchEvent> eventClick;
 
+	// interaction functions (register lambda functions here)
+	void setTouchDownFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
+	void setTouchMoveFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
+	void setTouchUpFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
+	void setClickFunction(std::function<void(ofxInterface::TouchEvent&)> _func);
+
+
 	// use this to enforce only one touch at a time (single touch)
 	void setAllowOnlyOneTouch(bool set) { bNodeAllowOneTouch = set; }
 	bool isTouched() { return bNodeTouched; }
@@ -107,6 +127,10 @@ public:
 	 */
 	void render(bool forceAll = false);
 	void renderDebug(bool forceAll = false);	// same as render but calls drawDebug instead of draw.
+
+	//TODO : description
+	void renderDynamic(bool forceAll = false);
+	void renderGroups(bool forceAll = false);
     
     /******
      * call the 'update' function of !!visible!! children
@@ -125,6 +149,10 @@ public:
 	bool getRenderClip() { return bClipRender; }
 	bool getGlobalRenderClip();
 	ofRectangle getRenderClipRect();
+	// if group is activated then all children are rendered afterwards and using the plane of this node (enables group masking)
+	void setRenderChildrenInGroup(bool set) {bRenderChildrenInGroup = set;};
+	bool getRenderChildrenInGroup() { return bRenderChildrenInGroup; };
+
 	// override these functions if you use some other renderer such as NanoVG
 	virtual void enableScissor(const ofRectangle& rect) { enableScissor(rect.x, rect.y, rect.width, rect.height); }
 	virtual void enableScissor(float x, float y, float w, float h);
@@ -251,9 +279,9 @@ public:
 		}
 	}
 	// returns a list representation of all childNodes in sub graph
-	void getSubTreeList(std::list<Node*>& list);
+	void getSubTreeList(std::list<Node*>& list, bool returnAllGroupElements = true);
 	// returns a list of visible elements in subtree
-	void getVisibleSubTreeList(std::list<Node*>& list);
+	void getVisibleSubTreeList(std::list<Node*>& list, bool returnAllGroupElements = true);
     // returns a list of enabled elements in subtree
     void getEnabledSubTreeList(std::list<Node*>& list);
 	
@@ -408,8 +436,21 @@ public:
 	ofVec3f getTranslationTo(Node* node);
 	float getAngleTo(Node* node);
 
+	/******
+	 * Exporting
+	 *
+	 * export the node as json
+	 *
+	 */
+
+	ofJson getSceneDescription();
+	ofJson getSceneDescription(vector<string> attributes, bool onlyActiveNodes = false);
+	virtual ofJson getNodeJson();
+	string listActiveNodes(int depth = 0);
 
 protected:
+	ofJson filterSceneDescription(ofJson desc, vector<string> attributes,bool onlyActiveNodes);
+
 	std::string name;
 	ofVec2f size;
 
@@ -418,6 +459,7 @@ protected:
 	bool bReceivingTouch;
 	bool bClipRender;
 	bool bClipTouch;
+	bool bRenderChildrenInGroup = false;
 
 	vector<Node*> childNodes;
 
@@ -461,11 +503,24 @@ private:
 		}
 	}
 
+	// lambda functions here
+	std::function<void(ofxInterface::TouchEvent&)> touchDownFunc;
+	std::function<void(ofxInterface::TouchEvent&)> touchMoveFunc;
+	std::function<void(ofxInterface::TouchEvent&)> touchUpFunc;
+	std::function<void(ofxInterface::TouchEvent&)> clickFunc;
+
+	void onTouchDown(TouchEvent& event);
+	void onTouchMove(TouchEvent& event);
+	void onTouchUp(TouchEvent& event);
+	void onClick(TouchEvent& event);
+
 	bool bSendDestroy;
 	bool bNodeAllowOneTouch;
 	bool bNodeUpdateWhenHidden;
 	bool bNodeTouched;
 	int nodeCurrentTouchId;
+
+	bool isClickAllowed = true;
 
 #ifdef OLD_SORT
     /******
@@ -485,6 +540,12 @@ private:
     void touchUp(int id,  TouchEvent* event);
     void touchExit(int id, TouchEvent* event);
     void touchEnter(int id, TouchEvent* event);
+
+
+	//helper functions for export json
+	const ofJson toJson(glm::vec3 val);
+	const ofJson toJson(glm::vec2 val);
+	const ofJson toJson(glm::quat val);
 };
 
 }

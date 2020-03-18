@@ -1,0 +1,20 @@
+{
+    "textures":{
+        "folder":"textures",
+        "info":"files [[id,path]]",
+        "files":[
+            ["cat1","cat1.jpg"],
+            ["cat2","cat2.jpg"],
+            ["cat3","cat3.jpg"]
+        ]
+    },
+    "fonts":{
+        "folder":"fonts",
+        "info":"files [[id,path]]",
+        "files":[
+            ["Verdana","verdana.ttf"],
+            ["Franklin Gothic","frabk.ttf"]
+        ]
+    }
+    
+}

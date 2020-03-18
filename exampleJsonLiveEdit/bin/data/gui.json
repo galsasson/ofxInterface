@@ -1,0 +1,105 @@
+{
+    "elements":[
+        {
+            "id":"background",
+            "class":"colorPanel",
+            "color":"bg",
+            "size":[1280,768]
+        },{
+            "id":"Head",
+            "class":"label",
+            "font":"Headline",
+            "position":[80,44],
+            "size":[1280,40],
+            "text":"Interactive GUI edit"
+        },{
+            "id":"text",
+            "class":"textField",
+            "size":[820,40],
+            "position":[80,100],
+            "text":[
+                "<style id='Text'>You can edit the GUI interactivly by editing \"gui.json\".<br/>",
+                "Each Time you save, the GUI is updated. This is a sandbox where you can try live-editing a GUI.</style>"
+            ]
+        },{
+            "id":"button",
+            "class":"modalElement",
+            "position":[80,160],
+            "size":[32,32],
+            "colorActive":"black",
+            "colorSelected":"white",
+            "colorInactive":"black",
+            "info": "sub elements can be defined",
+            "elements":[
+                {
+                    "id":"description",
+                    "class":"labelSmall",
+                    "position":[40,10],
+                    "text": "a button"
+                }
+            ]
+        },{
+            "id":"checker",
+            "class":"simpleChecker",
+            "position":[250,160],
+            "size":[32,32],
+            "colorActive":"black",
+            "colorSelected":"white",
+            "colorInactive":"black",
+            "elements":[
+                {
+                    "id":"description",
+                    "class":"labelSmall",
+                    "position":[40,10],
+                    "text": "a simpleChecker"
+                }
+            ]
+        },{
+            "id":"border",
+            "class":"colorPanel",
+            "color":"white",
+            "position":[0,210],
+            "size":[1280,2]
+        },{
+            "id":"container",
+            "class":"scrollableContainer",
+            "position":[0,220],
+            "size":[1280,548],
+            "sizeScrollableArea":[1280,1600],
+            "bgColor":"bg",
+            "elements":[
+                {
+                    "id":"description2",
+                    "class":"labelSmall",
+                    "position":[40,10],
+                    "size":[400,40],
+                    "text": "a scrollable container"
+                },
+                {
+                    "id":"pic1",
+                    "class":"texture",
+                    "position":[40,30],
+                    "texture":"cat1",
+                    "size":[500,500]
+                    
+                },
+                {
+                    "id":"pic2",
+                    "class":"texture",
+                    "position":[40,560],
+                    "texture":"cat2",
+                    "size":[500,500]
+                    
+                },
+                {
+                    "id":"pic3",
+                    "class":"texture",
+                    "position":[40,1090],
+                    "texture":"cat3",
+                    "size":[500,500],
+                    "tint":"tintRed"
+                }
+            ]
+        }
+    ]
+}

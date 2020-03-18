@@ -9,18 +9,15 @@
 #ifndef __ofxInterface_h__
 #define __ofxInterface_h__
 
-#include "Node.h"
-#include "AnimatableNode.h"
 #include "TouchEvent.h"
 #include "TouchManager.h"
 #include "VirtualTouch.h"
 
 /******
- * include default components
+ * include GuiFactory
  */
-#include "components/TextureButton.h"
-#include "components/BitmapTextButton.h"
-#include "components/SolidColorPanel.h"
-#include "components/LambdaView.h"
+#include "GuiFactory.h"
+
+#include "AnimatableNode.h"
 
 #endif
