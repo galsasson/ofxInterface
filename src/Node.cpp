@@ -66,6 +66,11 @@ Node::Node()
 #ifdef USE_OFX_HISTORY_PLOT
 	historyPlot = NULL;
 #endif
+
+	ofAddListener(eventTouchDown, this, &Node::onTouchDown);
+	ofAddListener(eventTouchMove, this, &Node::onTouchMove);
+	ofAddListener(eventTouchUp, this, &Node::onTouchUp);
+	ofAddListener(eventClick, this, &Node::onClick);
 }
 	
 	Node::Node(const Node& mom) : ofNode(mom)
@@ -100,12 +105,28 @@ Node::Node()
 	for (auto& c: mom.getChildren()) {
 		addChild(c->clone());
 	}
-
+	ofAddListener(eventTouchDown, this, &Node::onTouchDown);
+	ofAddListener(eventTouchMove, this, &Node::onTouchMove);
+	ofAddListener(eventTouchUp, this, &Node::onTouchUp);
 }
 	
 Node* Node::clone()
 {
 	return new Node(*this);
+}
+
+void Node::setup(NodeSettings settings) {
+	setName(settings.name);
+	setPosition(settings.position);
+	setSize(settings.size);
+	setPlane(settings.plane);
+	setRenderClip(settings.renderClip);
+	if (settings.isActive) {
+		activate();
+	}
+	else {
+		deactivate();
+	}
 }
 	
 int Node::getNumNodesAlive(){
@@ -181,6 +202,9 @@ void Node::drawBounds()
 
 void Node::render(bool forceAll)
 {
+	//not yet finally tested
+	renderDynamic(forceAll);
+	/*
 	std::list<Node*> sortedNodes;
 	std::list<Node*>::iterator it;
 
@@ -216,6 +240,7 @@ void Node::render(bool forceAll)
 		ofPopMatrix();
 		ofPopStyle();
 	}
+	*/
 }
 
 void Node::renderDebug(bool forceAll)
@@ -247,6 +272,79 @@ void Node::renderDebug(bool forceAll)
 
 		ofPopMatrix();
 		ofPopStyle();
+	}
+}
+
+void Node::renderDynamic(bool forceAll)
+{
+	std::list<Node*> sortedNodes;
+	std::list<Node*>::iterator it;
+
+	if (forceAll) {
+		// get all nodes (visible and invisible)
+		getSubTreeList(sortedNodes);
+	}
+	else {
+		// get only visible nodes
+		getVisibleSubTreeList(sortedNodes);
+	}
+
+	// sort scene by z (+z goes outside of the screen), plane is z
+	sortedNodes.sort(Node::bottomPlaneFirst);
+
+	for (it = sortedNodes.begin(); it != sortedNodes.end(); it++)
+	{
+		ofPushStyle();
+		ofPushMatrix();
+		ofMultMatrix((*it)->getGlobalTransformMatrix());
+		// use anchor
+
+		if ((*it)->getGlobalRenderClip()) {
+			(*it)->enableScissor((*it)->getRenderClipRect());
+		}
+		if ((*it)->getRenderChildrenInGroup()) {
+			(*it)->renderGroups();
+		}
+		else {
+			(*it)->draw();
+		}
+
+		if ((*it)->getGlobalRenderClip()) {
+			(*it)->disableScissor();
+		}
+
+		ofPopMatrix();
+		ofPopStyle();
+	}
+}
+
+void Node::renderGroups(bool forceAll)
+{
+	for (auto& child : childNodes) {
+		if (forceAll || child->getVisible()) {
+			
+			//if (child->getName() != "") cout << child->getName() << "  predraw " <<endl;
+			child->preDraw();
+			//ofPushStyle();
+			ofPushMatrix();
+			ofMultMatrix(child->getGlobalTransformMatrix());
+			// use anchor
+
+			if (child->getGlobalRenderClip()) {
+				child->enableScissor(child->getRenderClipRect());
+			}
+			//if (child->getName() != "") cout << child->getName() << "  draw " << endl;
+			child->draw();
+			if (child->getGlobalRenderClip()) {
+				child->disableScissor();
+			}
+
+			ofPopMatrix();
+			//ofPopStyle();
+			child->renderGroups();
+			//if (child->getName() != "") cout << child->getName() << "  postDraw" << endl;
+			child->postDraw();
+		}
 	}
 }
 
@@ -307,6 +405,7 @@ ofRectangle Node::getRenderClipRect()
 	ofRectangle rect;
 	if (bClipRender) {
 		ofVec2f pos = getGlobalPosition();
+
 		rect = ofRectangle(pos.x, pos.y, getGlobalWidth(), getGlobalHeight());
 	}
 
@@ -333,7 +432,11 @@ void Node::enableScissor(float x, float y, float w, float h)
 	ofVec2f local = toLocal(ofVec2f(x, y));
 	ofVec2f localScale = ofVec2f(w, h)*getGlobalScale();
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(local.x, local.y, localScale.x, localScale.y);
+	//glScissor(local.x, local.y, localScale.x, localScale.y);
+	// openGL uses an inverted y - axis, so we need to invert the y value
+	float dy = ofGetWindowHeight()-h -y;
+	
+	glScissor(x,  dy, localScale.x, localScale.y);
 }
 
 void Node::disableScissor()
@@ -369,6 +472,30 @@ void Node::setCentered()
                 (((Node*)parent)->getLocalHeight() - getLocalHeight())/2);
 }
 
+void Node::onTouchDown(TouchEvent & event) {
+	if (touchDownFunc) {
+		touchDownFunc(event);
+	}
+}
+
+void Node::onTouchMove(TouchEvent & event) {
+	if (touchMoveFunc) {
+		touchMoveFunc(event);
+	}
+}
+
+void Node::onTouchUp(TouchEvent & event) {
+	if (touchUpFunc) {
+		touchUpFunc(event);
+	}
+}
+
+void Node::onClick(TouchEvent & event) {
+	if (clickFunc) {
+		clickFunc(event);
+	}
+}
+
 void Node::touchDown(int id,  TouchEvent* event)
 {
 	if (bNodeAllowOneTouch && bNodeTouched && nodeCurrentTouchId!=id) {
@@ -399,6 +526,10 @@ void Node::touchMove(int id,  TouchEvent* event)
 		return;
 	}
 
+	if (event->velocitySmoothed.length() > 20) {
+		isClickAllowed = false;
+	}
+
 #ifdef OFXUINODE_DEBUG
 	debugBorderColor.a -= 10;
 #endif
@@ -424,11 +555,12 @@ void Node::touchUp(int id,  TouchEvent* event)
 #endif
 
 	ofNotifyEvent(eventTouchUp, *event);
-	if (contains(event->position)) {
+	if (contains(event->position) && isClickAllowed) {
 		ofNotifyEvent(eventClick, *event);
 	}
 
 	bNodeTouched = false;
+	isClickAllowed = true;
 }
 
 void Node::touchExit(int id, TouchEvent *event)
@@ -453,6 +585,33 @@ void Node::touchEnter(int id, TouchEvent *event)
 	debugBorderColor = touchEnterNodeColor;
 #endif
 	ofNotifyEvent(eventTouchEnter, *event);
+}
+
+const ofJson Node::toJson(glm::vec3 val)
+{
+	ofJson ret;
+	ret.push_back(val.x);
+	ret.push_back(val.y);
+	ret.push_back(val.z);
+	return ret;
+}
+
+const ofJson Node::toJson(glm::vec2 val)
+{
+	ofJson ret;
+	ret.push_back(val.x);
+	ret.push_back(val.y);
+	return ret;
+}
+
+const ofJson Node::toJson(glm::quat val)
+{
+	ofJson ret;
+	ret.push_back(val.w);
+	ret.push_back(val.x);
+	ret.push_back(val.y);
+	ret.push_back(val.z);
+	return ofJson();
 }
 
 ofVec3f Node::toLocal(const ofVec3f &screenPoint)
@@ -565,6 +724,22 @@ bool Node::contains(const ofVec3f &globalPoint)
 	return true;
 }
 
+void Node::setTouchDownFunction(std::function<void(ofxInterface::TouchEvent&)> _func) {
+	touchDownFunc = _func;
+}
+
+void Node::setTouchMoveFunction(std::function<void(ofxInterface::TouchEvent&)> _func) {
+	touchMoveFunc = _func;
+}
+
+void Node::setTouchUpFunction(std::function<void(ofxInterface::TouchEvent&)> _func) {
+	touchUpFunc = _func;
+}
+
+void Node::setClickFunction(std::function<void(ofxInterface::TouchEvent&)> _func) {
+	clickFunc = _func;
+}
+
 void Node::addChild(Node *child, int insertAt, bool bMaintainChildGlobalTransform)
 {
 	child->setParent(*this, bMaintainChildGlobalTransform);
@@ -617,17 +792,20 @@ void Node::sortChildren(const function<bool(const Node* a, const Node* b)>& comp
 	std::sort(childNodes.begin(), childNodes.end(), compareFunction);
 }
 
-void Node::getSubTreeList(std::list<Node*>& list)
+void Node::getSubTreeList(std::list<Node*>& list, bool returnAllGroupElements)
 {
 	list.push_back(this);
 
-	for (int i=0; i<childNodes.size(); i++)
-	{
-		childNodes[i]->getSubTreeList(list);
+	if (!bRenderChildrenInGroup) {
+		for (int i = 0; i < childNodes.size(); i++)
+		{
+			childNodes[i]->getSubTreeList(list);
+		}
 	}
+	
 }
 
-void Node::getVisibleSubTreeList(std::list<Node*>& list)
+void Node::getVisibleSubTreeList(std::list<Node*>& list, bool returnAllGroupElements)
 {
 	if (!getVisible()) {
 		return;
@@ -635,8 +813,10 @@ void Node::getVisibleSubTreeList(std::list<Node*>& list)
 	
 	list.push_back(this);
 
-	for (int i=0; i<childNodes.size(); i++) {
-		childNodes[i]->getVisibleSubTreeList(list);
+	if (!bRenderChildrenInGroup) {
+		for (int i = 0; i < childNodes.size(); i++) {
+			childNodes[i]->getVisibleSubTreeList(list);
+		}
 	}
 }
     
@@ -708,6 +888,71 @@ float Node::getAngleTo(ofxInterface::Node *node)
 {
 	ofVec3f translate = getTranslationTo(node);
 	return atan2(translate.y, translate.x)*180/PI;
+}
+
+ofJson Node::getSceneDescription()
+{
+	ofJson ret;
+	ret = getNodeJson();
+	ofJson jChild;
+	for (auto& child:getChildren()){
+		jChild.push_back(child->getSceneDescription());
+	}
+	ret["children"] = jChild;
+	return ret;
+}
+
+ofJson Node::getSceneDescription(vector<string> attributes,bool onlyActiveNodes)
+{
+	return filterSceneDescription(getSceneDescription(), attributes ,  onlyActiveNodes);
+}
+
+ofJson Node::getNodeJson()
+{
+	ofJson ret;
+	ret["nodeType"] = "Node";
+	ret["name"] = getName();
+	ret["size"] = toJson(getSize());
+	ret["position"] = toJson(getPosition());
+	ret["orientation"] = toJson(getOrientationQuat());
+	ret["scale"] = toJson(getScale());
+	ret["isVisible"] = getVisible();
+	ret["isEnabled"] = getEnabled();
+	ret["isReceivingTouch"] = getReceivingTouch();
+	ret["plane"] = getPlane();
+	return ret;
+}
+
+string Node::listActiveNodes(int depth)
+{
+	string ret;
+	if (getEnabled()) {
+		for (size_t i = 0; i < depth; i++){
+			ret += " ";
+		}
+		ret += name + "\n";
+		for (auto n : getChildren()) {
+			ret += n->listActiveNodes(depth+1);
+		}
+	}
+	return ret;
+}
+
+ofJson Node::filterSceneDescription(ofJson desc, vector<string> attributes, bool onlyActiveNodes)
+{
+	ofJson ret;
+	if (onlyActiveNodes == false || (onlyActiveNodes == true && getEnabled()) ) {
+		for (auto& attr : attributes) {
+			if (desc[attr] != nullptr) ret[attr] = desc[attr];
+		}
+
+		if (desc["children"] != nullptr && desc["children"].size() > 0) {
+			for (auto& child : desc["children"]) {
+				ret["children"].push_back(filterSceneDescription(child, attributes, onlyActiveNodes));
+			}
+		}
+	}
+	return ret;
 }
 
 } // namespace
