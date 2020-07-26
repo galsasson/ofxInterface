@@ -10,7 +10,7 @@
 #define AnimatableNode_h
 
 #include "ofMain.h"
-#include "ofxInterface.h"
+#include "Node.h"
 
 namespace ofxInterface {
 

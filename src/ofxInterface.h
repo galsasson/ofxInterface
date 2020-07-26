@@ -22,5 +22,6 @@
 #include "components/BitmapTextButton.h"
 #include "components/SolidColorPanel.h"
 #include "components/LambdaView.h"
+#include "components/ZoomableView.h"
 
 #endif
