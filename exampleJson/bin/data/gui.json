@@ -11,14 +11,14 @@
             "font":"Headline",
             "position":[80,44],
             "size":[1280,40],
-            "text":"Interactive GUI edit"
+            "text":"GUI from json"
         },{
             "id":"text",
             "class":"textField",
             "size":[820,40],
             "position":[80,100],
             "text":[
-                "<style id='Text'>You can edit the GUI by editing \"gui.json\".<br/>",
+                "<style id='Text'>A Text<br/>",
                 "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</style>"
             ]
         },{
