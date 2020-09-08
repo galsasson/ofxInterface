@@ -22,7 +22,6 @@
 
 namespace ofxInterface
 {
-
 	struct NodeSettings {
 		string name;
 		ofVec2f position;

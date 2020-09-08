@@ -10,6 +10,7 @@
 #include "SimpleChecker.h"
 #include "SoftKeyboard.h"
 #include "TextInput.h"
+#include "Slider.h"
 
 
 #define DEBUG(X) if(isDebug) ofLogNotice() << X 
@@ -52,9 +53,10 @@ namespace ofxInterface
 			Node* getSimpleChecker(ofJson config, ofJson style);
 			Node* getSoftKeyboard(ofJson config, ofJson style);
 			Node* getTextInput(ofJson config, ofJson style);
-			
+			Node* getSlider(ofJson config, ofJson style);
 
-		protected:
+			ofJson getTemplate(string templateId);
+
 			// -- Helper functions -- //
 			ofJson getStyle(string id);
 
@@ -76,11 +78,12 @@ namespace ofxInterface
 			void readModalElementSettings(ModalElementSettings& settings, ofJson config, ofJson style);
 			void readScrollableContainerSettings(ScrollableContainerSettings& settings, ofJson config, ofJson style);
 			void readColorpanelSettings(ColorPanelSettings& settings, ofJson config, ofJson style);
+			void readTextureSettings(TextureNodeSettings& settings, ofJson config, ofJson style);
 
 			// -- variables -- //
 			shared_ptr<ofxAssetManager> assets;
 			map<string, ofColor> colors;
-			bool isDebug = true;
+			bool isDebug = false;
 
 			
 

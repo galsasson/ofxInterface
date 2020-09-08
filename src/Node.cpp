@@ -525,8 +525,8 @@ void Node::touchMove(int id,  TouchEvent* event)
 	if (bNodeAllowOneTouch && id != nodeCurrentTouchId) {
 		return;
 	}
-
-	if (event->velocitySmoothed.length() > 20) {
+	
+	if (event->velocitySmoothed.length() > 200) {
 		isClickAllowed = false;
 	}
 

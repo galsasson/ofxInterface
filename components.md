@@ -125,3 +125,19 @@ Inherits from Node. Height of Element depends on width and is automatically set.
 | borderWidth   | float         | border width (also effects keys)|
 | margin        | float         | space between border and keys|
 | padding       | float         | space between keys|
+
+
+### TextureNode
+
+A simple Slider.
+
+Inherits from Node.
+
+| property      | type          | description  |
+| ------------- |---------------| -----|
+| direction     | string         | "horizontal", "vertical" |
+| colorActive   | ofColor       | key background color when enabled|
+| colorInactive | ofColor       | key background color when disabled|
+| colorSelected | ofColor       | key background color when selected|
+| colorSelected | ofColor       | key background color when selected|
+| lineWidth     | int           | thickness of the bar|

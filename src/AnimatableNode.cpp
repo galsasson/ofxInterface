@@ -66,8 +66,7 @@ void AnimatableNode::update(float dt)
         setPosition(nodePositionAnimation.source.getInterpolated(nodePositionAnimation.target, prog));
         if (nodePositionAnimation.progress >= nodePositionAnimation.delay+nodePositionAnimation.duration) {
 			nodePositionAnimation.bActive = false;
-			function<void(void)> f = nodePositionAnimation.onEnd;
-			f();
+			nodePositionAnimation.onEnd();
         }
     }
     
@@ -80,8 +79,7 @@ void AnimatableNode::update(float dt)
         *anim.second.color = anim.second.source.getLerped(anim.second.target, prog);
         if (anim.second.progress >= anim.second.delay+anim.second.duration) {
 			rmcolor.push_back(anim.first);
-			function<void(void)> f = anim.second.onEnd;
-			f();
+			anim.second.onEnd();
         }
     }
 	// go over again and remove completed animations
@@ -100,8 +98,7 @@ void AnimatableNode::update(float dt)
         *anim.second.value = ofMap(prog, 0, 1, anim.second.source, anim.second.target, true);
         if (anim.second.progress >= anim.second.delay+anim.second.duration) {
 			rmfloat.push_back(anim.first);
-			function<void(void)> f = anim.second.onEnd;
-			f();
+			anim.second.onEnd();
         }
     }
 	// go over again and remove completed animations

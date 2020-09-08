@@ -22,13 +22,18 @@ namespace ofxInterface
 			}
 
 			// init font styles
+			float fontScale = 1.5;
+			if (!config["fontScale"].is_null()) {
+				fontScale = config["fontScale"].get<float>();
+			}
 			if (!config["fontStyles"].is_null()) {
 				for (auto& font : config["fontStyles"]) {
 					ofxFontStash2::Style style;
 					style.fontID = font["fontId"].get<string>();
-					style.fontSize = font["fontSize"].get<int>() * 1.5;
+					style.fontSize = font["fontSize"].get<int>()*fontScale;
 					style.color = colors[font["color"].get<string>()];
 					if (!font["lineHeight"].is_null()) style.lineHeightMult = font["lineHeight"].get<float>();
+					if (!font["spacing"].is_null()) style.spacing = font["spacing"].get<float>();
 
 					assets->getFonts()->addStyle(font["name"].get<string>(), style);
 				}
@@ -55,6 +60,7 @@ namespace ofxInterface
 			registerCreationFunction("simpleChecker", [this](ofJson config, ofJson style) {return this->getSimpleChecker(config, style); });
 			registerCreationFunction("softKeyboard", [this](ofJson config, ofJson style) {return this->getSoftKeyboard(config, style); });
 			registerCreationFunction("textInput", [this](ofJson config, ofJson style) {return this->getTextInput(config, style); });
+			registerCreationFunction("slider", [this](ofJson config, ofJson style) {return this->getSlider(config, style); });
 		}
 
 		///\brief create all GUI elements from json and add them to parent node
@@ -72,7 +78,16 @@ namespace ofxInterface
 		}
 
 		Node * GuiFactory::getElement(ofJson config) {
-			ofJson styleConfig = getStyle(config["class"].get<string>());
+			
+			// usinf "node" if no class specified
+			string className;
+			if (config["class"].is_null()) {
+				className = "node";
+			}
+			else {
+				className = config["class"].get<string>();
+			}
+			ofJson styleConfig = getStyle(className);
 
 			if (styleConfig["id"] != "#error") {
 				string elemClass = styleConfig["class"].get<string>();
@@ -195,36 +210,8 @@ namespace ofxInterface
 
 		Node * GuiFactory::getTextureNode(ofJson config, ofJson style) {
 			TextureNodeSettings s;
-			readNodeSettings(s,config,style);
+			readTextureSettings(s,config,style);
 			TextureNode* tex = new TextureNode();
-
-			if (hasValue("texture", config, style)) {
-				s.texture = assets->getTexture(getValue<string>("texture", config, style));
-				if (!hasValue("size", config, style)) {
-					s.size = ofVec2f(assets->getTexture(getValue<string>("texture", config, style)).getWidth(),
-						assets->getTexture(getValue<string>("texture", config, style)).getHeight());
-				}
-			}
-			if (hasValue("tint", config, style)) {
-				s.tinting = colors[getValue<string>("tint", config, style)];
-			}
-
-			if (hasValue("blendmode", config, style)) {
-				string al = getValue<string>("blendmode", config, style);
-				if (al == "alpha") {
-					s.blendmode = OF_BLENDMODE_ALPHA;
-				} else if (al == "none") {
-					s.blendmode = OF_BLENDMODE_DISABLED;
-				} else if (al == "add") {
-					s.blendmode = OF_BLENDMODE_ADD;
-				} else if (al == "multiply") {
-					s.blendmode = OF_BLENDMODE_MULTIPLY;
-				} else if (al == "screen") {
-					s.blendmode = OF_BLENDMODE_SCREEN;
-				} else if (al == "subtract") {
-					s.blendmode = OF_BLENDMODE_SUBTRACT;
-				}
-			}
 			tex->setup(s);
 			return tex;
 		}
@@ -282,6 +269,9 @@ namespace ofxInterface
 			if (hasValue("padding", config, style)) {
 				settings.padding = getValue<int>("padding", config, style);
 			}
+			if (hasValue("layout", config, style)) {
+				settings.layout = getValue<string>("layout", config, style);
+			}
 
 			ret->setup(settings);
 			return ret;
@@ -303,10 +293,69 @@ namespace ofxInterface
 			if (hasValue("description", config, style)) {
 				settings.descriptionText = getValue<string>("description", config, style);
 			}
+			if (hasValue("enableNewline", config, style)) {
+				settings.enableNewline = getValue<bool>("enableNewline", config, style);
+			}
+
+			if (hasValue("alignment", config, style)) {
+				if (getValue<string>("alignment", config, style) == "center") {
+					settings.alignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
+				}
+				else if (getValue<string>("alignment", config, style) == "right") {
+					settings.alignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
+				}
+			}
+
+			if (hasValue("autoResize", config, style)) {
+				settings.autoResize = getValue<bool>("autoResize", config, style);
+			}
 
 			TextInput* t = new TextInput();
 			t->setup(settings);
 			return t;
+		}
+
+		Node * GuiFactory::getSlider(ofJson config, ofJson style)
+		{
+			SliderSettings settings; 
+			readNodeSettings(settings, config, style);
+
+			if (hasValue("direction", config, style)) {
+				string val = getValue<string>("direction", config, style);
+				if (val == "HORIZONTAL") {
+					settings.direction = HORIZONTAL;
+				}
+				else if (val == "VERTICAL") {
+					settings.direction = VERTICAL;
+				}
+			}
+			if (hasValue("colorActive", config, style)) {
+				settings.colorActive = colors[getValue<string>("colorActive", config, style)];
+			}
+			if (hasValue("colorInactive", config, style)) {
+				settings.colorInactive = colors[getValue<string>("colorInactive", config, style)];
+			}
+			if (hasValue("colorSelected", config, style)) {
+				settings.colorSelected = colors[getValue<string>("colorSelected", config, style)];
+			}
+
+			if (hasValue("lineWidth", config, style)) {
+				settings.lineWidth = getValue<int>("lineWidth", config, style);
+			}
+
+			Slider* ret = new Slider();
+			ret->setup(settings);
+			return ret;
+		}
+
+		ofJson GuiFactory::getTemplate(string templateId)
+		{
+			for (auto& elem:styles){
+				if (elem["id"].get<string>() == templateId) {
+					return elem;
+				}
+			}
+			return ofJson{ {"error","style not found"} };
 		}
 
 		ofJson GuiFactory::getStyle(string id) {
@@ -398,6 +447,59 @@ namespace ofxInterface
 			}
 			if (hasValue("strokeColor", config, style)) {
 				settings.strokeColor = colors[getValue<string>("strokeColor", config, style)];
+			}
+		}
+
+		void GuiFactory::readTextureSettings(TextureNodeSettings & settings, ofJson config, ofJson style)
+		{
+			readNodeSettings(settings, config, style);
+
+			if (hasValue("texture", config, style)) {
+				settings.texture = assets->getTexture(getValue<string>("texture", config, style));
+				if (!hasValue("size", config, style)) {
+					settings.size = ofVec2f(assets->getTexture(getValue<string>("texture", config, style)).getWidth(),
+						assets->getTexture(getValue<string>("texture", config, style)).getHeight());
+				}
+			}
+			if (hasValue("tint", config, style)) {
+				settings.tinting = colors[getValue<string>("tint", config, style)];
+			}
+			if (hasValue("scaleMode", config, style)) {
+				string al = getValue<string>("scaleMode", config, style);
+				if (al == "fill") {
+					settings.scaleMode = OF_SCALEMODE_FILL;
+				}
+				else if (al == "fit") {
+					settings.scaleMode = OF_SCALEMODE_FIT;
+				}
+				else if (al == "center") {
+					settings.scaleMode = OF_SCALEMODE_CENTER;
+				}
+				else if (al == "stretch") {
+					settings.scaleMode = OF_SCALEMODE_STRETCH_TO_FILL;
+				}
+			}
+
+			if (hasValue("blendmode", config, style)) {
+				string al = getValue<string>("blendmode", config, style);
+				if (al == "alpha") {
+					settings.blendmode = OF_BLENDMODE_ALPHA;
+				}
+				else if (al == "none") {
+					settings.blendmode = OF_BLENDMODE_DISABLED;
+				}
+				else if (al == "add") {
+					settings.blendmode = OF_BLENDMODE_ADD;
+				}
+				else if (al == "multiply") {
+					settings.blendmode = OF_BLENDMODE_MULTIPLY;
+				}
+				else if (al == "screen") {
+					settings.blendmode = OF_BLENDMODE_SCREEN;
+				}
+				else if (al == "subtract") {
+					settings.blendmode = OF_BLENDMODE_SUBTRACT;
+				}
 			}
 		}
 
