@@ -21,15 +21,21 @@ namespace ofxInterface {
 	{
 	public:
 		Label();
+		Label(const Label& mom);
 		~Label();
+
+		virtual Node* clone() override;
 
         virtual void draw();
 		virtual void setup(LabelSettings s);
 		void setText(string text);
 		void setAlignment(ofAlignHorz alignment);
+		void setShadowEnabled(bool isEnabled);
 		void setShadow(bool isEnabled, float w = 0, float x= 0, float y = 0, ofColor color = ofColor(0));
 		void setFontSize(float size);
 		float getFontSize();
+		void setColor(ofColor color);
+		ofColor getColor();
 
 
     private:

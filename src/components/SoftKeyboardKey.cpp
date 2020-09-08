@@ -74,6 +74,10 @@ namespace ofxInterface {
     //------------------------------------------------------------------
     void SoftKeyboardKey::draw() {
 
+		if (!isTouched() && isSelected) {
+			isSelected = false;
+		}
+
 		borderPath.draw();
 
 		if (isSelected) {

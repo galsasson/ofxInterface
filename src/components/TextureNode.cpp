@@ -11,6 +11,12 @@ namespace ofxInterface {
 	{
 	}
 
+	Node * TextureNode::clone()
+	{
+		auto ret = new Node(*this);
+		return ret;
+	}
+
 	void TextureNode::setup(ofTexture& texture)
 	{
 		setTexture(texture);
@@ -31,8 +37,6 @@ namespace ofxInterface {
     
     void TextureNode::draw()
     {
-		
-
         if (texture.isAllocated()) {
 
 			if (hardShadowBlend) {
@@ -54,12 +58,11 @@ namespace ofxInterface {
 			switch (scaleMode) {
 			case OF_SCALEMODE_FIT:
 				texCoordst.scaleTo(dimensionsT, OF_SCALEMODE_FIT);
-				dimensionsT = texCoordst;
+				dimensions = texCoordst;
 				break;
 			case OF_SCALEMODE_FILL:
 				dimensionsT.scaleTo(texCoords, OF_SCALEMODE_FIT);
 				texCoords = dimensionsT;
-				dimensionsT = dimensions;
 				break;
 			case OF_SCALEMODE_CENTER:
 				break;

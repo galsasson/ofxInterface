@@ -19,7 +19,10 @@ namespace ofxInterface {
 	{
 	public:
 		ModalElement();
+		ModalElement(const ModalElement& mom);
 		~ModalElement();
+
+		virtual Node* clone() override;
 
 		void setup(ModalElementSettings s);
 		virtual void draw();
@@ -33,7 +36,6 @@ namespace ofxInterface {
 		void setModalType(ModalType type);
 		ModalType getModalType();
 
-	protected:
 		ofColor colorActive;
 		ofColor colorSelected;
 		ofColor colorInactive;

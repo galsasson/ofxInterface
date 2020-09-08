@@ -4,11 +4,32 @@
 namespace ofxInterface {
 	ModalElement::ModalElement()
 	{
+		ofAddListener(eventClick, this, &ModalElement::onClicked, 100);
+		ofAddListener(eventTouchDown, this, &ModalElement::onTouchDown, 100);
+		ofAddListener(eventTouchUp, this, &ModalElement::onTouchUp, 100);
+		isSelected.addListener(this, &ModalElement::onStateChanged);
+	}
+
+	ModalElement::ModalElement(const ModalElement & mom) : Node(mom)
+	{
+		colorActive = mom.colorActive;
+		colorSelected = mom.colorSelected;
+		type = mom.type;
+		isSelected = mom.isSelected.get();
+		isSelected.addListener(this, &ModalElement::onStateChanged);
+		ofAddListener(eventClick, this, &ModalElement::onClicked, 100);
+		ofAddListener(eventTouchDown, this, &ModalElement::onTouchDown, 100);
+		ofAddListener(eventTouchUp, this, &ModalElement::onTouchUp, 100);
 	}
 
 
 	ModalElement::~ModalElement()
 	{
+	}
+
+	Node * ModalElement::clone()
+	{
+		return new  ModalElement(*this);
 	}
 
 	void ModalElement::setup(ModalElementSettings s)
@@ -18,15 +39,16 @@ namespace ofxInterface {
 		colorActive = s.colorActive;
 		colorInactive = s.colorInactive;
 		colorSelected = s.colorSelected;
-
-		ofAddListener(eventClick, this, &ModalElement::onClicked,100);
-		ofAddListener(eventTouchDown, this, &ModalElement::onTouchDown, 100);
-		ofAddListener(eventTouchUp, this, &ModalElement::onTouchUp, 100);
-		isSelected.addListener(this, &ModalElement::onStateChanged);
+		
+		
 	}
 
 	void ModalElement::draw()
 	{
+		//if (type == ofxInterface::BUTTON && !isTouched() && isSelected) {
+		//	isSelected = false;
+		//}
+
 		if (getEnabled()) {
 			ofSetColor(colorActive);
 			ofDrawRectangle(0, 0, getWidth(), getHeight());
@@ -58,7 +80,6 @@ namespace ofxInterface {
 		default:
 			break;
 		}
-		
 	}
 
 	void ModalElement::onTouchDown(TouchEvent & e) {

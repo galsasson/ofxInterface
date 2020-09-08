@@ -28,6 +28,8 @@ namespace ofxInterface {
 		int margin = 12;
 		int padding = 8;
 
+		string layout = "de";
+
 	};
 
 
@@ -50,6 +52,8 @@ protected:
 	void addLine(Node* keySet, vector<int> keys, vector<float> widthKeys, int y);
     void addLine(Node* keySet, vector<int> keys, int y);
     void addKey(Node* keySet, int keyValue, int x, int y, int w, int h);
+
+	map<string, vector< vector<int>> > getKeyLayout(string layout);
 
 	map<string,Node*> keySets;
 	Node* activeKeySet;

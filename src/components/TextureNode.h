@@ -16,6 +16,7 @@ namespace ofxInterface {
 	public:
 		TextureNode();
 		~TextureNode();
+		virtual Node* clone() override;
 
 		void setup(ofTexture& texture);
 		void setup(TextureNodeSettings settings);

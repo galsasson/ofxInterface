@@ -37,7 +37,7 @@ namespace ofxInterface {
 		float getRoundedEdge();
 		void setRoundedEdge(float ang);
 
-	private:
+	protected:
 		float borderWidth;
 		bool bDrawBackground = true;
 		float roundAngle;

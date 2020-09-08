@@ -33,33 +33,11 @@ namespace ofxInterface {
 		// create keys
 		wKey = (getWidth() - 2 * (margin + borderWidth) - 10*padding) / 11;
 
-		vector< vector<int>> alphaKeys = { 
-			{'q','w','e','r','t','z','u','i','o','p',252},
-			{'a','s','d','f','g','h','j','k','l',246,228},
-			{ 3680,'y','x','c','v','b','n','m',8},
-			{ 9997,'@',' ','.',13}
-		};
-
-		addSet("alpha", alphaKeys);
-
-		vector< vector<int>> alphaBigKeys = {
-			{'Q','W','E','R','T','Z','U','I','O','P',220},
-			{'A','S','D','F','G','H','J','K','L',214,196},
-			{ 3680,'Y','X','C','V','B','N','M',8},
-			{ 9997,'@',' ','.',13}
-		};
-
-		addSet("alphaBig", alphaBigKeys);
-
-		vector< vector<int>> numbers = {
-			{'1','2','3','4','5','6','7','8','9','0','='},
-			{'!','#','$','%','&','\'','*','+','-','/','?'},
-			{'^','_','`','{','|','}','~','(',')',',',':' },
-			{ 9996,'@',' ',';',13}
-		};
-
-		addSet("numbers", numbers);
-
+		auto keyLayout = getKeyLayout(s.layout);
+		for (auto& l:keyLayout)
+		{
+			addSet(l.first, l.second);
+		}
 
 		setActiveKeyset( "alpha");
 
@@ -189,6 +167,74 @@ namespace ofxInterface {
         ofAddListener(key->keyPressed, this, &SoftKeyboard::onKeyPressed);
         ofAddListener(key->keyReleased, this, &SoftKeyboard::onKeyReleased);
     }
+
+	map<string, vector<vector<int>>> SoftKeyboard::getKeyLayout(string layout)
+	{
+		map<string, vector<vector<int>>> ret;
+		vector<int> alphaKeys;
+		vector<int > alphaBigKeys;
+		vector<int> numbers;
+
+		if (layout == "de") {
+			vector< vector<int>> alphaKeys = {
+			{'q','w','e','r','t','z','u','i','o','p',252},
+			{'a','s','d','f','g','h','j','k','l',246,228},
+			{ 3680,'y','x','c','v','b','n','m',8},
+			{ 9997,'@',' ','.',13}
+			};
+
+			ret.insert(make_pair("alpha", alphaKeys));
+
+			vector<vector<int>> alphaBigKeys = {
+				{'Q','W','E','R','T','Z','U','I','O','P',220},
+				{'A','S','D','F','G','H','J','K','L',214,196},
+				{ 3680,'Y','X','C','V','B','N','M',8},
+				{ 9997,'@',' ','.',13}
+			};
+
+			ret.insert(make_pair("alphaBig", alphaBigKeys));
+
+			vector< vector<int>> numbers = {
+				{'1','2','3','4','5','6','7','8','9','0','='},
+				{'!','#','$','%','&','\'','*','+','-','/','?'},
+				{'^','_','`','{','|','}','~','(',')',',',':' },
+				{ 9996,'@',' ',';',13}
+			};
+
+			ret.insert(make_pair("numbers", numbers));
+		}
+		else { // use "en"
+			vector< vector<int>> alphaKeys = {
+			{'q','w','e','r','t','y','u','i','o','p',252},
+			{'a','s','d','f','g','h','j','k','l',246,228},
+			{ 3680,'z','x','c','v','b','n','m',8},
+			{ 9997,'@',' ','.',13}
+			};
+
+			ret.insert(make_pair("alpha", alphaKeys));
+
+			vector<vector<int>> alphaBigKeys = {
+				{'Q','W','E','R','T','Y','U','I','O','P',220},
+				{'A','S','D','F','G','H','J','K','L',214,196},
+				{ 3680,'Z','X','C','V','B','N','M',8},
+				{ 9997,'@',' ','.',13}
+			};
+
+			ret.insert(make_pair("alphaBig", alphaBigKeys));
+
+			vector< vector<int>> numbers = {
+				{'1','2','3','4','5','6','7','8','9','0','='},
+				{'!','#','$','%','&','\'','*','+','-','/','?'},
+				{'^','_','`','{','|','}','~','(',')',',',':' },
+				{ 9996,'@',' ',';',13}
+			};
+
+			ret.insert(make_pair("numbers", numbers));
+		}
+
+		return ret;
+		
+	}
     
     void SoftKeyboard::onKeyPressed(ofKeyEventArgs &event)
     {

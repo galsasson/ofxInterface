@@ -7,9 +7,25 @@ namespace ofxInterface {
 
 	}
 
+	Label::Label(const Label & mom):Node(mom)
+	{
+		font = mom.font;
+		style = mom.style;
+		text = mom.text;
+		alignment = mom.alignment;
+		isDropshadow = mom.isDropshadow;
+		shadow = mom.shadow;
+		shadowPos = mom.shadowPos;
+	}
+
 
 	Label::~Label()
 	{
+	}
+
+	Node * Label::clone()
+	{
+		return new Label(*this);
 	}
 
 	void Label::draw()
@@ -56,6 +72,10 @@ namespace ofxInterface {
 	{
 		alignment = alignment_;
 	}
+	void Label::setShadowEnabled(bool isEnabled)
+	{
+		isDropshadow = isEnabled;
+	}
 	void Label::setShadow(bool isEnabled, float w, float x, float y, ofColor color) {
 		isDropshadow = isEnabled;
 		shadow = style;
@@ -69,5 +89,13 @@ namespace ofxInterface {
 	}
 	float Label::getFontSize() {
 		return style.fontSize;
+	}
+	void Label::setColor(ofColor color)
+	{
+		style.color = color;
+	}
+	ofColor Label::getColor()
+	{
+		return style.color;
 	}
 }

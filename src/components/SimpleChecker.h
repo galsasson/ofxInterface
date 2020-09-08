@@ -17,7 +17,6 @@ namespace ofxInterface {
 		void onStateChanged(bool& isActive);
 
 	protected:
-	private:
 		ofxAnimatableOfColor colorFade;
 		int currentAni = 0;
 
