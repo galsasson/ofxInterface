@@ -20,9 +20,7 @@ class TextureButton : public Node
 {
 public:
 	TextureButton();
-	void setup(ofTexture *tex, float x=0, float y=0);
-
-	void setTexture(ofTexture *tex);
+	void setTextures(ofTexture *up, ofTexture* down=NULL);
 
 	void setBorder(bool draw) { bDrawBorder = draw; }
 	void setBackground(bool draw) { bDrawBackground = draw; }
@@ -50,6 +48,7 @@ private:
 	ofColor borderColor;
 
 	ofTexture* texture;
+	ofTexture* textureDown;
 };
 
 }	// namespace
