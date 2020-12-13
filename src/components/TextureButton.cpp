@@ -22,6 +22,10 @@ TextureButton::TextureButton()
 	bgColor = ofColor(255);;
 	tintColor = ofColor(255);
 	borderColor = ofColor(0);
+	touchDownFunc = []() {};
+	touchUpFunc = []() {};
+	ofAddListener(eventTouchDown, this, &TextureButton::onTouchDown);
+	ofAddListener(eventTouchUp, this, &TextureButton::onTouchUp);
 }
 
 void TextureButton::setTextures(ofTexture* up, ofTexture* down)
@@ -72,6 +76,16 @@ void TextureButton::draw()
 		ofNoFill();
 		ofDrawRectangle(0, 0, getWidth(), getHeight());
 	}
+}
+
+void TextureButton::onTouchDown(TouchEvent& event)
+{
+	touchDownFunc();
+}
+
+void TextureButton::onTouchUp(TouchEvent& event)
+{
+	touchUpFunc();
 }
 
 }	// namespace

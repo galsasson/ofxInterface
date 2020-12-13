@@ -31,6 +31,13 @@ public:
 
 	void setPadding(float top, float right, float bottom, float left);
 
+	void onDown(const function<void(void)>& func) {
+		touchDownFunc = func;
+	}
+	void onUp(const function<void(void)>& func) {
+		touchUpFunc = func;
+	}
+
 	void update(float dt);
 	void draw();
 
@@ -49,6 +56,11 @@ private:
 
 	ofTexture* texture;
 	ofTexture* textureDown;
+
+	std::function<void(void)> touchDownFunc;
+	std::function<void(void)> touchUpFunc;
+	void onTouchDown(TouchEvent& event);
+	void onTouchUp(TouchEvent& event);
 };
 
 }	// namespace
