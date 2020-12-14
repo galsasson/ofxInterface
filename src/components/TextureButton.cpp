@@ -19,8 +19,8 @@ TextureButton::TextureButton()
 	setPadding(0, 0, 0, 0);
 	bDrawBackground = false;
 	bDrawBorder = false;
-	bgColor = ofColor(255);;
-	tintColor = ofColor(255);
+	bgColor = ofColor(255,255,255,255);
+	tintColor = ofColor(255,255,255,255);
 	borderColor = ofColor(0);
 	touchDownFunc = []() {};
 	touchUpFunc = []() {};
