@@ -13,7 +13,7 @@ namespace ofxInterface {
 
 	Node * TextureNode::clone()
 	{
-		auto ret = new Node(*this);
+		auto ret = new TextureNode(*this);
 		return ret;
 	}
 
@@ -33,14 +33,19 @@ namespace ofxInterface {
 		scaleMode = settings.scaleMode;
 		blendmode = settings.blendmode;
 		tinting = settings.tinting;
+		horizontalAlign = settings.horizontalAlign;
+		verticalAlign = settings.verticalAlign;
 	}
     
     void TextureNode::draw()
     {
         if (texture.isAllocated()) {
 
-			if (hardShadowBlend) {
-				glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			if (blendmode == OF_BLENDMODE_ALPHA) {				
+				glEnable(GL_BLEND);
+				glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+				glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+				//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			} else {
 				setBlendMode(blendmode);
 			}
@@ -57,11 +62,13 @@ namespace ofxInterface {
 			ofRectangle texCoordst = texCoords;
 			switch (scaleMode) {
 			case OF_SCALEMODE_FIT:
-				texCoordst.scaleTo(dimensionsT, OF_SCALEMODE_FIT);
+				texCoordst.scaleTo(dimensionsT, OF_ASPECT_RATIO_KEEP, horizontalAlign, verticalAlign);
+				//texCoordst.scaleTo(dimensionsT, OF_SCALEMODE_FIT);
 				dimensions = texCoordst;
 				break;
 			case OF_SCALEMODE_FILL:
-				dimensionsT.scaleTo(texCoords, OF_SCALEMODE_FIT);
+				//dimensionsT.scaleTo(texCoords, OF_SCALEMODE_FIT);
+				dimensionsT.scaleTo(texCoords, OF_ASPECT_RATIO_KEEP, horizontalAlign, verticalAlign);
 				texCoords = dimensionsT;
 				break;
 			case OF_SCALEMODE_CENTER:
@@ -103,6 +110,27 @@ namespace ofxInterface {
 		tinting = color;
 	}
 
+	ofAlignVert TextureNode::getVerticalAlign()
+	{
+		return verticalAlign;
+	}
+
+	void TextureNode::setVerticalAlign(ofAlignVert align)
+	{
+		verticalAlign = align;
+	}
+
+	ofAlignHorz TextureNode::getHorizontalAlign()
+	{
+		return horizontalAlign;
+	}
+
+	void TextureNode::setHorizontalAlign(ofAlignHorz align)
+	{
+		horizontalAlign = align;
+	}
+
+
 	ofScaleMode TextureNode::getScaleMode() {
 		return scaleMode;
 	}
@@ -113,15 +141,6 @@ namespace ofxInterface {
     
 	ofColor TextureNode::getTinting() {
 		return tinting;
-	}
-
-	bool TextureNode::isHardShadowblend() {
-		return hardShadowBlend;
-	}
-
-	void TextureNode::setHardShadowBlend(bool isHardShadowBlend_) {
-		
-		hardShadowBlend = isHardShadowBlend_;
 	}
 
 	void TextureNode::setBlendMode(ofBlendMode blendmode_) {

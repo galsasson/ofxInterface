@@ -12,6 +12,7 @@
 #include <iostream>
 #include "ofMain.h"
 #include "TouchEvent.h"
+#include "EffectDropShadow.h"
 
 // you can comment this to save a little (very little)
 #define OFXUINODE_DEBUG
@@ -22,6 +23,12 @@
 
 namespace ofxInterface
 {
+	
+
+	struct EffectSettings {
+		EffectDropShadowSettings dropShadow;
+	};
+
 	struct NodeSettings {
 		string name;
 		ofVec2f position;
@@ -29,6 +36,7 @@ namespace ofxInterface
 		bool renderClip = false;
 		bool isActive = true;
 		float plane = 10;
+		EffectSettings effects;
 };
 
 class Node : public ofNode
@@ -53,6 +61,7 @@ public:
 	const std::string& getName() const { return name; }
     // search the tree for a node with a specific name, searchDepth of -1 means search all the way down
     Node* getChildWithName(const std::string& searchName, int searchDepth = -1) const;
+    vector<Node*> getChildrenWithName(const std::string& searchName, int searchDepth = -1) const;
 	Node* getParentWithName(const std::string& searchName, int searchDepth = -1) const;
 
     /******
@@ -76,7 +85,7 @@ public:
 	// functions to override
 	//
 	virtual void update(float dt) {};	// please override with update code
-	virtual void draw() {};		// please override! draw your object in local space
+	virtual void draw() {} ;		// please override! draw your object in local space
 	virtual void preDraw() {};		// affects group rendering, executed before the draw function
 	virtual void postDraw() {};		// affects group rendering, executed after the draw function
 
@@ -366,7 +375,8 @@ public:
 
 
 	// use this to hold any data
-	void setData(shared_ptr<void> _data) { data = _data; }
+	template<typename T>
+	void setData(shared_ptr<T> _data);
 	shared_ptr<void> getData() { return data; }
 
 	//check for leaks
@@ -384,7 +394,7 @@ public:
 	ofEvent<void> eventDestroy;			// send this event in the destructor
 
 
-	string print(int depth=0) const;
+	string printItem(int depth=0) const;
 
 	template <class ListenerClass, typename ArgType>
 	void addEventListener(const string& eventName, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgType&), bool recursive=false)
@@ -445,10 +455,15 @@ public:
 	ofJson getSceneDescription();
 	ofJson getSceneDescription(vector<string> attributes, bool onlyActiveNodes = false);
 	virtual ofJson getNodeJson();
+	virtual ofJson getNodeJsonFiltered(set<string> keys);
 	string listActiveNodes(int depth = 0);
+
+	// effect settings
+	EffectSettings getEffectSettings();
 
 protected:
 	ofJson filterSceneDescription(ofJson desc, vector<string> attributes,bool onlyActiveNodes);
+	ofJson filterJsonDescription(ofJson desc, set<string> keys);
 
 	std::string name;
 	ofVec2f size;
@@ -468,6 +483,7 @@ protected:
 
     // hold custom data
 	shared_ptr<void> data;
+	bool dataIsJson = false;
 
 
 	// debug stuff
@@ -483,6 +499,16 @@ protected:
 	static ofColor touchExitNodeColor;
 	static ofColor touchEnterNodeColor;
 	#endif
+
+
+
+	// effects
+	EffectSettings effectSettings;
+
+	// drop shadow
+	ofFbo fboDropShadow;
+	EffectDropShadow effectDropShadow;
+	void drawDropShadow();
 
 private:
 	template<typename ArgType>
@@ -521,6 +547,8 @@ private:
 
 	bool isClickAllowed = true;
 
+
+
 #ifdef OLD_SORT
     /******
      * sameDepthOffset:
@@ -546,6 +574,19 @@ private:
 	const ofJson toJson(glm::vec2 val);
 	const ofJson toJson(glm::quat val);
 };
+
+template<typename T>
+inline void Node::setData(shared_ptr<T> _data)
+{
+	if (ofIsStringInString(typeid(_data).name(), "class std::shared_ptr<class nlohmann::basic_json")) {
+		dataIsJson = true;
+	}
+	else {
+		dataIsJson = false;
+	}
+
+	data = _data;
+}
 
 }
 

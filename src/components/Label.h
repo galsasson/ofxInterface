@@ -7,7 +7,7 @@ namespace ofxInterface {
 		shared_ptr<ofxFontStash2::Fonts> font;
 		ofxFontStash2::Style style;
 		string text;
-		ofAlignHorz alignment = OF_ALIGN_HORZ_LEFT;
+		ofAlignHorz horzAlignment = OF_ALIGN_HORZ_LEFT;
 
 		bool isDropshadow = false;
 		ofxFontStash2::Style shadow;
@@ -29,11 +29,13 @@ namespace ofxInterface {
         virtual void draw();
 		virtual void setup(LabelSettings s);
 		void setText(string text);
-		void setAlignment(ofAlignHorz alignment);
+		string getText();
+		void setAlignment(ofAlignHorz horzAlignment);
 		void setShadowEnabled(bool isEnabled);
 		void setShadow(bool isEnabled, float w = 0, float x= 0, float y = 0, ofColor color = ofColor(0));
 		void setFontSize(float size);
 		float getFontSize();
+		ofxFontStash2::Style getFontStyle();
 		void setColor(ofColor color);
 		ofColor getColor();
 
@@ -42,7 +44,7 @@ namespace ofxInterface {
 		shared_ptr<ofxFontStash2::Fonts> font;
 		ofxFontStash2::Style style;
 		string text;
-		ofAlignHorz alignment = OF_ALIGN_HORZ_LEFT;
+		ofAlignHorz horzAlignment = OF_ALIGN_HORZ_LEFT;
 
 		bool isDropshadow = false;
 		ofxFontStash2::Style shadow;

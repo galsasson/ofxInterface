@@ -13,9 +13,6 @@
 #include "Slider.h"
 
 
-#define DEBUG(X) if(isDebug) ofLogNotice() << X 
-
-
 ///\brief defines a function for creating gui elements
 ///
 /// since it looks a little overcomplicated (maybe it is) i try to explain it
@@ -61,7 +58,7 @@ namespace ofxInterface
 			ofJson getStyle(string id);
 
 			bool hasValue(string valueName, ofJson config, ofJson style);
-			static ofColor colorFromJson(ofJson val);
+			static ofColor colorFromJson(ofJson val, map<string, ofColor> colors = map<string, ofColor>());
 			static ofVec2f vec2fFromJson(ofJson val);
 			static ofVec3f vec3fFromJson(ofJson val);
 
@@ -69,6 +66,7 @@ namespace ofxInterface
 
 			template <class ValueType>
 			ValueType getValue(string valueName, ofJson config, ofJson style);
+			string getValueType(string valueName, ofJson config, ofJson style);
 
 			// -- function registration -- //
 			void registerCreationFunction(string name, creationFunction  fct);
@@ -79,6 +77,9 @@ namespace ofxInterface
 			void readScrollableContainerSettings(ScrollableContainerSettings& settings, ofJson config, ofJson style);
 			void readColorpanelSettings(ColorPanelSettings& settings, ofJson config, ofJson style);
 			void readTextureSettings(TextureNodeSettings& settings, ofJson config, ofJson style);
+			void readTextInputSettings(TextInputSettings& settings, ofJson config, ofJson style);
+
+			void readEffectSettings(NodeSettings& settings, ofJson config, ofJson style);
 
 			// -- variables -- //
 			shared_ptr<ofxAssetManager> assets;

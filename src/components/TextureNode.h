@@ -8,6 +8,8 @@ namespace ofxInterface {
 		float alpha = 255;
 		ofScaleMode scaleMode = OF_SCALEMODE_FILL;
 		ofBlendMode blendmode = OF_BLENDMODE_ALPHA;
+		ofAlignHorz horizontalAlign = OF_ALIGN_HORZ_CENTER;
+		ofAlignVert verticalAlign = OF_ALIGN_VERT_CENTER;
 	};
 
 	class TextureNode :
@@ -21,7 +23,7 @@ namespace ofxInterface {
 		void setup(ofTexture& texture);
 		void setup(TextureNodeSettings settings);
 
-        virtual void draw();
+		virtual void draw() override;
 
 		void setTexture(ofTexture& texture_);
 		ofTexture getTexture();
@@ -35,8 +37,12 @@ namespace ofxInterface {
 		ofColor getTinting();
 		void setTinting(ofColor color);
 
-		bool isHardShadowblend();
-		void setHardShadowBlend(bool isHardShadowBlend);
+		ofAlignVert getVerticalAlign();
+		void setVerticalAlign(ofAlignVert align);
+		
+		ofAlignHorz getHorizontalAlign();
+		void setHorizontalAlign(ofAlignHorz align);
+
 		void setBlendMode(ofBlendMode blendmode);
 
 		ofEvent<ofTexture> eventTextureChanged;
@@ -50,8 +56,10 @@ namespace ofxInterface {
     private:
 		ofColor tinting = ofColor(255);
 		ofScaleMode scaleMode = OF_SCALEMODE_FILL;
-		bool hardShadowBlend = false;
 		ofBlendMode blendmode = OF_BLENDMODE_ALPHA;
+
+		ofAlignHorz horizontalAlign = OF_ALIGN_HORZ_CENTER;
+		ofAlignVert verticalAlign = OF_ALIGN_VERT_CENTER;
 	};
 }
 

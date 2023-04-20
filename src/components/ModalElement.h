@@ -39,6 +39,8 @@ namespace ofxInterface {
 		ofColor colorActive;
 		ofColor colorSelected;
 		ofColor colorInactive;
+
+		ofJson getNodeJson() override;
 		 
 	private:
 		ModalType type;

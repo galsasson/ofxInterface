@@ -3,6 +3,7 @@
 #include "ofxFontStash2.h"
 #include "ofxAnimatableOfPoint.h"
 #include "ofxEasing.h"
+#include "ColorPanel.h"
 
 namespace ofxInterface {
     
@@ -28,7 +29,7 @@ namespace ofxInterface {
         virtual void draw() override;
 
 		Node* getScrollableArea();
-		void addChildToScrollableArea(Node* child);
+		//void addChildToScrollableArea(Node* child);
 
 		virtual void onTouchDown(TouchEvent & event);
 		virtual void onTouchUp(TouchEvent & event);
@@ -37,16 +38,24 @@ namespace ofxInterface {
 		void onScrollAreaSizeChanged(ofxInterface::Node & n);
 
 		void onChildAdded(ofxInterface::Node& n);
-	
+		void onChildRemoved(ofxInterface::Node& n);
+		void fitSizeToItems();
+
 	protected:
 		Node* containerRemoveChild(Node *child, bool bMaintainChildGlobalTransform = false);
 		Node* containerRemoveChild(int index, bool bMaintainChildGlobalTransform = false);
+		void updateChildItemSize(Node* child, int& w, int& h);
+		void updateChildListeners(Node* child);
+
+		void updateSlider();
 
     private:
 		Node* scrollableArea;
 		Node* dragArea;
+		map<string, ColorPanel*> slider;
 		ofVec2f pStartDragCursor;
 		ofVec2f pStartDrag;
+		ofVec2f baseSize;
 
 		ofColor bgColor;
 		ofColor scrollActiveColor;
@@ -65,6 +74,9 @@ namespace ofxInterface {
 
 		/// \brief in s
 		const float maxAnimationLength = 2.3f;
+
+		
+		
 	};
 }
 

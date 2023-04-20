@@ -15,13 +15,20 @@ namespace ofxInterface
 			// init colors
 			if (!config["colors"].is_null()) {
 				for (auto& color : config["colors"]) {
-					colors.insert(pair<string, ofColor>(color["id"].get<string>(), colorFromJson(color["color"])));
+					colors.insert(pair<string, ofColor>(color["id"].get<string>(), colorFromJson(color["color"],colors)));
+
+
 				}
 			}else {
 				ofLogError("GuiFactory::setup", "no font colors defined, gui elements will use predefined ones");
 			}
 
 			// init font styles
+
+			// disable logging each font that is loaded
+			auto currentLogLevel = ofGetLogLevel();
+			ofSetLogLevel(OF_LOG_ERROR);
+
 			float fontScale = 1.5;
 			if (!config["fontScale"].is_null()) {
 				fontScale = config["fontScale"].get<float>();
@@ -40,6 +47,7 @@ namespace ofxInterface
 			} else {
 				ofLogError("GuiFactory::setup", "no font styles defined, gui elements using fonts won't be available" );
 			}
+			ofSetLogLevel(currentLogLevel);
 
 			// init elements
 			if (!config["elements"].is_null()) {
@@ -51,6 +59,7 @@ namespace ofxInterface
 
 			// register creation functions
 			registerCreationFunction("node", [this](ofJson config, ofJson style) {return this->getNode(config, style); });
+			registerCreationFunction("canvas", [this](ofJson config, ofJson style) {return this->getNode(config, style); });
 			registerCreationFunction("label", [this](ofJson config, ofJson style) {return this->getLabel(config, style); });
 			registerCreationFunction("textField", [this](ofJson config, ofJson style) {return this->getTextField(config, style); });
 			registerCreationFunction("colorPanel", [this](ofJson config, ofJson style) {return this->getColorPanel(config, style); });
@@ -91,7 +100,7 @@ namespace ofxInterface
 
 			if (styleConfig["id"] != "#error") {
 				string elemClass = styleConfig["class"].get<string>();
-				DEBUG("create element : " << config["id"].get<string>() << "  ( " << elemClass << " -> " << styleConfig["id"].get<string>() << " )");
+				ofLogVerbose() <<"create element : " << config["id"].get<string>() << "  ( " << elemClass << " -> " << styleConfig["id"].get<string>() << " )";
 				Node* ret = nullptr;
 				if (creationTable.find(elemClass) != creationTable.end()) {
 					ret = (this->creationTable[elemClass])(config, styleConfig);
@@ -127,9 +136,9 @@ namespace ofxInterface
 
 			if (hasValue("alignment", config, style)) {
 				if (getValue<string>("alignment", config, style) == "center") {
-					s.alignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
+					s.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
 				} else if (getValue<string>("alignment", config, style) == "right") {
-					s.alignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
+					s.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
 				}
 			}
 
@@ -174,11 +183,11 @@ namespace ofxInterface
 			if (hasValue("alignment", config, style)) {
 				string al = getValue<string>("alignment", config, style);
 				if (al == "left") {
-					s.alignment = ofAlignHorz::OF_ALIGN_HORZ_LEFT;
+					s.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_LEFT;
 				} else if (al == "right") {
-					s.alignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
+					s.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
 				} else if (al == "center") {
-					s.alignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
+					s.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
 				}
 			}
 			
@@ -272,6 +281,20 @@ namespace ofxInterface
 			if (hasValue("layout", config, style)) {
 				settings.layout = getValue<string>("layout", config, style);
 			}
+			if (hasValue("textureKeys", config, style)) {
+				ofJson mapping;
+				if (config["textureKeys"] != nullptr) {
+					mapping = config["textureKeys"];
+				}
+				else if (style["textureKeys"] != nullptr) {
+					mapping = style["textureKeys"];
+				}
+
+				for (auto& entry:mapping.items())
+				{
+					settings.textureKeys.insert(make_pair(ofToInt(entry.key()), assets->getTexture(entry.value().get<string>())));
+				}
+			}
 
 			ret->setup(settings);
 			return ret;
@@ -280,35 +303,8 @@ namespace ofxInterface
 		Node * GuiFactory::getTextInput(ofJson config, ofJson style)
 		{
 			TextInputSettings settings;
-			readModalElementSettings(settings,config,style);
-
-			settings.font = assets->getFonts();
-			if (hasValue("font", config, style)) {
-				settings.style = assets->getFonts()->getStyle(getValue<string>("font", config, style));
-			}
-
-			if (hasValue("maxChars", config, style)) {
-				settings.maxChars = getValue<int>("maxChars", config, style);
-			}
-			if (hasValue("description", config, style)) {
-				settings.descriptionText = getValue<string>("description", config, style);
-			}
-			if (hasValue("enableNewline", config, style)) {
-				settings.enableNewline = getValue<bool>("enableNewline", config, style);
-			}
-
-			if (hasValue("alignment", config, style)) {
-				if (getValue<string>("alignment", config, style) == "center") {
-					settings.alignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
-				}
-				else if (getValue<string>("alignment", config, style) == "right") {
-					settings.alignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
-				}
-			}
-
-			if (hasValue("autoResize", config, style)) {
-				settings.autoResize = getValue<bool>("autoResize", config, style);
-			}
+			readTextInputSettings(settings, config, style);
+			
 
 			TextInput* t = new TextInput();
 			t->setup(settings);
@@ -321,7 +317,7 @@ namespace ofxInterface
 			readNodeSettings(settings, config, style);
 
 			if (hasValue("direction", config, style)) {
-				string val = getValue<string>("direction", config, style);
+				string val = ofToUpper(getValue<string>("direction", config, style));
 				if (val == "HORIZONTAL") {
 					settings.direction = HORIZONTAL;
 				}
@@ -371,6 +367,7 @@ namespace ofxInterface
 			return ofJson({ {"id","#error"} });
 		}
 		void GuiFactory::readNodeSettings(NodeSettings & settings, ofJson config, ofJson style) {
+			readEffectSettings(settings, config, style);
 			settings.name = config["id"].get<string>();
 			if (hasValue("position", config, style)) {
 				settings.position = vec2fFromJson(getValue<ofJson>("position", config, style));
@@ -443,11 +440,33 @@ namespace ofxInterface
 				settings.borderRadius = getValue<float>("borderRadius", config, style);
 			}
 			if (hasValue("color", config, style)) {
-				settings.bgColor = colors[getValue<string>("color", config, style)];
+				if (getValueType("color", config, style) == "array") {
+					auto cs = config["color"] == nullptr ? style["color"] : config["color"];
+					settings.colors.clear();
+					for (auto& c : cs) {
+						settings.colors.push_back(colors[c.get<string>()]);
+					}
+				}
+				else {
+					settings.colors.front() = colors[getValue<string>("color", config, style)];
+				}
 			}
 			if (hasValue("strokeColor", config, style)) {
 				settings.strokeColor = colors[getValue<string>("strokeColor", config, style)];
 			}
+			if (hasValue("gradientDirection", config, style)) {
+				settings.gradientDirection = getValue<float>("gradientDirection", config, style);
+			}
+			if (hasValue("gradientColorPositions", config, style)) {
+				auto gs = config["gradientColorPositions"] == nullptr ? style["gradientColorPositions"] : config["gradientColorPositions"];
+				settings.gradientColorPositions.clear();
+				for (auto& g : gs) {
+					settings.colors.push_back(g.get<float>());
+				}
+			}
+
+
+			vector<float> gradientColorPositions;
 		}
 
 		void GuiFactory::readTextureSettings(TextureNodeSettings & settings, ofJson config, ofJson style)
@@ -480,6 +499,32 @@ namespace ofxInterface
 				}
 			}
 
+			if (hasValue("verticalAlign", config, style)) {
+				string al = getValue<string>("verticalAlign", config, style);
+				if (al == "top") {
+					settings.verticalAlign = OF_ALIGN_VERT_TOP;
+				}
+				else if (al == "bottom") {
+					settings.verticalAlign = OF_ALIGN_VERT_BOTTOM;
+				}
+				else if (al == "center") {
+					settings.verticalAlign = OF_ALIGN_VERT_CENTER;
+				}
+			}
+
+			if (hasValue("horizontalAlign", config, style)) {
+				string al = getValue<string>("horizontalAlign", config, style);
+				if (al == "left") {
+					settings.horizontalAlign = OF_ALIGN_HORZ_LEFT;
+				}
+				else if (al == "right") {
+					settings.horizontalAlign = OF_ALIGN_HORZ_RIGHT;
+				}
+				else if (al == "center") {
+					settings.horizontalAlign = OF_ALIGN_HORZ_CENTER;
+				}
+			}
+
 			if (hasValue("blendmode", config, style)) {
 				string al = getValue<string>("blendmode", config, style);
 				if (al == "alpha") {
@@ -503,40 +548,118 @@ namespace ofxInterface
 			}
 		}
 
-		ofColor GuiFactory::colorFromJson(ofJson val) {
-			switch (val.size()) {
-			case 1:
-				// interprete string
-				if (val.is_string()) {
+		void GuiFactory::readTextInputSettings(TextInputSettings& settings, ofJson config, ofJson style)
+		{
+			readModalElementSettings(settings, config, style);
 
-					if (ofIsStringInString(val.get<string>(), ".")) {
-						ofParameter<ofFloatColor> pTemp;
-						pTemp.fromString(val);
-						return pTemp.get();
-					} else {
-						ofParameter<ofColor> pTemp;
-						pTemp.fromString(val);
-						return pTemp.get();
+			settings.font = assets->getFonts();
+			if (hasValue("font", config, style)) {
+				settings.style = assets->getFonts()->getStyle(getValue<string>("font", config, style));
+			}
+
+			if (hasValue("maxChars", config, style)) {
+				settings.maxChars = getValue<int>("maxChars", config, style);
+			}
+			if (hasValue("description", config, style)) {
+				settings.descriptionText = getValue<string>("description", config, style);
+			}
+			if (hasValue("enableNewline", config, style)) {
+				settings.enableNewline = getValue<bool>("enableNewline", config, style);
+			}
+
+			if (hasValue("alignment", config, style)) {
+				if (getValue<string>("alignment", config, style) == "center") {
+					settings.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_CENTER;
+				}
+				else if (getValue<string>("alignment", config, style) == "right") {
+					settings.horzAlignment = ofAlignHorz::OF_ALIGN_HORZ_RIGHT;
+				}
+			}
+
+			if (hasValue("autoResize", config, style)) {
+				settings.autoResize = getValue<bool>("autoResize", config, style);
+			}
+		}
+
+		void GuiFactory::readEffectSettings(NodeSettings& settings, ofJson config, ofJson style)
+		{
+			if (hasValue("nodeEffects", config, style)) {
+				if (hasValue("shadow", config["nodeEffects"], style["nodeEffects"])) {
+					if (hasValue("color", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"])) {
+						settings.effects.dropShadow.color = colors[getValue<string>("color", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"])];
+					}
+					if (hasValue("size", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"])) {
+						settings.effects.dropShadow.size = getValue<int>("size", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"]);
+					}
+					if (hasValue("position", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"])) {
+						settings.effects.dropShadow.position = vec2fFromJson(getValue<ofJson>("position", config["nodeEffects"]["shadow"], style["nodeEffects"]["shadow"]));
 					}
 
-				}// interprete array
-				else
-					return ofColor(val[0].get<int>());
-
-				break;
-			case 2:
-				return ofColor(val[0], val[0], val[0], val[1]);
-				break;
-			case 3:
-				return ofColor(val[0], val[1], val[2]);
-				break;
-			case 4:
-				return ofColor(val[0], val[1], val[2], val[3]);
-				break;
-			default:
-				return ofColor();
-				break;
+				}
 			}
+
+		}
+
+		ofColor GuiFactory::colorFromJson(ofJson val, map<string, ofColor> colors) {
+			if (val.is_string()) { // read ofParam
+				if (ofIsStringInString(val.get<string>(), ".")) {
+					ofParameter<ofFloatColor> pTemp;
+					pTemp.fromString(val);
+					return pTemp.get();
+				}
+				else { 
+					ofParameter<ofColor> pTemp;
+					pTemp.fromString(val);
+					return pTemp.get();
+				}
+			}
+			else if (val.is_array()) { // read as rgba array
+				switch (val.size()) {
+				case 1:
+					return ofColor(val[0].get<int>());
+					break;
+				case 2:
+					return ofColor(val[0], val[0], val[0], val[1]);
+					break;
+				case 3:
+					return ofColor(val[0], val[1], val[2]);
+					break;
+				case 4:
+					return ofColor(val[0], val[1], val[2], val[3]);
+					break;
+				default:
+					return ofColor();
+					break;
+				}
+			}
+			else if(val.is_object())
+			{
+				ofColor base;
+				if (val["base"].is_null()) {
+					ofLogError("no base Color defined");
+				}
+				else {
+					if (colors.find(val["base"].get<string>()) != colors.end()) {
+						base = colors[val["base"].get<string>()];
+					}
+					if (!val["r"].is_null()) {
+						base.r = val["r"].get<int>();
+					}
+					if (!val["g"].is_null()) {
+						base.g = val["g"].get<int>();
+					}
+					if (!val["b"].is_null()) {
+						base.b = val["b"].get<int>();
+					}
+					if (!val["a"].is_null()) {
+						base.a = val["a"].get<int>();
+					}
+					
+				}
+				
+				return base;
+			}
+			return ofColor();
 		}
 
 		ofVec2f GuiFactory::vec2fFromJson(ofJson val) {
@@ -617,6 +740,17 @@ namespace ofxInterface
 			}
 			return false;
 	}
+		string GuiFactory::getValueType(string valueName, ofJson config, ofJson style)
+		{
+			string ret = "null";
+			if (config[valueName] != nullptr) {
+				ret = config[valueName].type_name();
+			}
+			else if (style[valueName] != nullptr) {
+				ret = style[valueName].type_name();
+			}
+			return ret;
+		}
 		///\brief register a creation function
 		///
 		/// since it is not self-explanatory, here you have an example (using a lamda function)

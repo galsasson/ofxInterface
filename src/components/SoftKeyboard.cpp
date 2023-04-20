@@ -24,15 +24,25 @@ namespace ofxInterface {
 		borderWidth = s.borderWidth;
 		padding = s.padding;
 		margin = s.margin;
+		textureKeys = s.textureKeys;
 
 
 
 		// fixed ratio
-		setHeight(getWidth() * 19.4 / 51);
+		if (getHeight() == 0) {
+			setHeight(getWidth() * 19.4 / 51);
+		}
+		
 
-		// create keys
-		wKey = (getWidth() - 2 * (margin + borderWidth) - 10*padding) / 11;
-
+		// create keys, different layout for code and language input
+		if (s.layout == "code") {
+			wKey = (getWidth() - 2 * (margin + borderWidth) - 9 * padding) / 10;
+		}
+		else {
+			wKey = (getWidth() - 2 * (margin + borderWidth) - 10 * padding) / 11;
+		}
+		hKey = (getHeight() - 2 * (margin + borderWidth) - 3 * padding) / 4;
+		
 		auto keyLayout = getKeyLayout(s.layout);
 		for (auto& l:keyLayout)
 		{
@@ -98,7 +108,7 @@ namespace ofxInterface {
 		int py = borderWidth + margin;
 		for (auto& line : keys) {
 			addLine(keySets[keySet], line, py);
-			py += wKey + padding;
+			py += hKey + padding;
 		}
 	}
 
@@ -112,10 +122,10 @@ namespace ofxInterface {
 		float x = margin + borderWidth;
 		int i = 0;
 		for (auto& key : keys) {
-			float w =  widthKeys[i];
-
-			addKey(keySet, key, x, y, w, wKey);
-
+			float w = widthKeys[i];
+			if (key != 10000) {
+				addKey(keySet, key, x, y, w, hKey);
+			}
 			x += w + padding;
 			++i;
 		}
@@ -130,6 +140,7 @@ namespace ofxInterface {
 		keyWidths[3680] = wKey * 2 + padding; // shift
 		keyWidths[8] = wKey * 2 + padding; // backspace
 		keyWidths[13] = wKey * 2 + padding; // return
+		keyWidths[10000] = (wKey ) * 0.5; // half key empty space
 
 		vector<float> widthKeys;
 
@@ -159,6 +170,11 @@ namespace ofxInterface {
 		s.font = font;
 		s.key = keyValue;
 		s.style = style;
+
+		if (textureKeys.find(keyValue) != textureKeys.end()) {
+			s.isTextureKey = true;
+			s.keyTexture = textureKeys[keyValue];
+		}
 
 		key->setup(s);
 
@@ -197,13 +213,13 @@ namespace ofxInterface {
 			vector< vector<int>> numbers = {
 				{'1','2','3','4','5','6','7','8','9','0','='},
 				{'!','#','$','%','&','\'','*','+','-','/','?'},
-				{'^','_','`','{','|','}','~','(',')',',',':' },
+				{'_',223,'|','{','}','[',']','(',')',',',':'},
 				{ 9996,'@',' ',';',13}
 			};
 
 			ret.insert(make_pair("numbers", numbers));
 		}
-		else { // use "en"
+		else if(layout == "en") { 
 			vector< vector<int>> alphaKeys = {
 			{'q','w','e','r','t','y','u','i','o','p',252},
 			{'a','s','d','f','g','h','j','k','l',246,228},
@@ -225,8 +241,36 @@ namespace ofxInterface {
 			vector< vector<int>> numbers = {
 				{'1','2','3','4','5','6','7','8','9','0','='},
 				{'!','#','$','%','&','\'','*','+','-','/','?'},
-				{'^','_','`','{','|','}','~','(',')',',',':' },
+				{'_',223,'|','{','}','[',']','(',')',',',':'},
 				{ 9996,'@',' ',';',13}
+			};
+
+			ret.insert(make_pair("numbers", numbers));
+		}
+		else if (layout == "code") {
+			vector< vector<int>> alphaKeys = {
+			{'1','2','3','4','5','6','7','8','9','0'},
+			{'Q','W','E','R','T','Y','U','I','O','P'},
+			{10000,'A','S','D','F','G','H','J','K','L'},
+			{10000,'Z','X','C','V','B','N','M',8}
+			};
+
+			ret.insert(make_pair("alpha", alphaKeys));
+
+			vector<vector<int>> alphaBigKeys = {
+				{'1','2','3','4','5','6','7','8','9','0'},
+			{'Q','W','E','R','T','Y','U','I','O','P'},
+			{10000,'A','S','D','F','G','H','J','K','L'},
+			{10000,'Z','X','C','V','B','N','M',8}
+			};
+
+			ret.insert(make_pair("alphaBig", alphaBigKeys));
+
+			vector< vector<int>> numbers = {
+				{'1','2','3','4','5','6','7','8','9','0'},
+			{'Q','W','E','R','T','Y','U','I','O','P'},
+			{10000,'A','S','D','F','G','H','J','K','L'},
+			{10000,'Z','X','C','V','B','N','M',8}
 			};
 
 			ret.insert(make_pair("numbers", numbers));

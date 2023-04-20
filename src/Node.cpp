@@ -20,11 +20,10 @@ ofColor Node::touchEnterNodeColor = ofColor(255, 0, 128);
 
 static int numInterfaceNodes = 0;
 
-
 Node::~Node()
 {
 	numInterfaceNodes--;
-	if (parent != NULL) {
+	if (parent != nullptr) {
 		((Node*)parent)->removeChild(this);
 	}
 
@@ -48,13 +47,15 @@ Node::Node()
 	bClipTouch = false;
 	bClipRender = false;
 	bReceivingTouch = true;
-	data = NULL;
+	data = nullptr;
 
 	bSendDestroy = true;
 	bNodeAllowOneTouch = false;
 	bNodeUpdateWhenHidden = false;
 	bNodeTouched = false;
 	nodeCurrentTouchId = -1;	// not relevant
+	data = shared_ptr<ofJson>(new ofJson());
+	dataIsJson = true;
 #ifdef OLDSORT
     sameDepthOffset = ofRandom(0, 1);
 #endif
@@ -64,7 +65,7 @@ Node::Node()
 #endif
 
 #ifdef USE_OFX_HISTORY_PLOT
-	historyPlot = NULL;
+	historyPlot = nullptr;
 #endif
 
 	ofAddListener(eventTouchDown, this, &Node::onTouchDown);
@@ -89,6 +90,8 @@ Node::Node()
 	bNodeUpdateWhenHidden = mom.bNodeUpdateWhenHidden;
 	bNodeTouched = mom.bNodeTouched;
 	nodeCurrentTouchId = -1;
+	data = mom.data;
+	dataIsJson = mom.dataIsJson;
 #ifdef OLDSORT
 	sameDepthOffset = ofRandom(0, 1);
 #endif
@@ -98,7 +101,7 @@ Node::Node()
 #endif
 	
 #ifdef USE_OFX_HISTORY_PLOT
-	historyPlot = NULL;
+	historyPlot = nullptr;
 #endif
 	
 	// copy children
@@ -112,7 +115,13 @@ Node::Node()
 	
 Node* Node::clone()
 {
-	return new Node(*this);
+	auto ret = new Node(*this);
+	
+	/*for (auto& child : getChildren())
+	{
+		ret->addChild(child->clone());
+	}*/
+	return ret;
 }
 
 void Node::setup(NodeSettings settings) {
@@ -127,8 +136,13 @@ void Node::setup(NodeSettings settings) {
 	else {
 		deactivate();
 	}
+
+	if (settings.effects.dropShadow.size > 0) {
+		effectDropShadow.setup(settings.effects.dropShadow);
+	}
+	effectSettings = settings.effects;
 }
-	
+
 int Node::getNumNodesAlive(){
 	return numInterfaceNodes;
 }
@@ -140,18 +154,41 @@ Node* Node::getChildWithName(const std::string &searchName, int searchDepth) con
     }
 
     if (searchDepth==0) {
-        return NULL;
+        return nullptr;
     }
 
     for (int i=0; i<childNodes.size(); i++)
     {
         Node* node = childNodes[i]->getChildWithName(searchName, searchDepth-1);
-        if (node != NULL) {
+        if (node != nullptr) {
             return node;
         }
     }
 
-    return NULL;
+    return nullptr;
+}
+
+vector<Node*> Node::getChildrenWithName(const std::string& searchName, int searchDepth) const
+{
+	vector<Node*> ret;
+
+	if (searchName == name) {
+		ret.push_back((Node*)this);
+	}
+
+	if (searchDepth == 0) {
+		return ret;
+	}
+
+	for (int i = 0; i < childNodes.size(); i++)
+	{
+		vector<Node*> retC = childNodes[i]->getChildrenWithName(searchName, searchDepth - 1);
+		if (retC.size() > 0) {
+			ret.insert(ret.end(), retC.begin(), retC.end());
+		}
+	}
+
+	return ret;
 }
 
 Node* Node::getParentWithName(const std::string &searchName, int searchDepth) const
@@ -161,11 +198,11 @@ Node* Node::getParentWithName(const std::string &searchName, int searchDepth) co
 	}
 
 	if (searchDepth==0) {
-		return NULL;
+		return nullptr;
 	}
 
-	if (parent == NULL) {
-		return NULL;
+	if (parent == nullptr) {
+		return nullptr;
 	}
 
 	return ((Node*)parent)->getParentWithName(searchName, searchDepth-1);
@@ -188,7 +225,7 @@ void Node::drawDebug()
 	ofDrawBitmapString(ss.str(), 0, -3);
 
 #ifdef USE_OFX_HISTORY_PLOT
-	if (historyPlot != NULL) {
+	if (historyPlot != nullptr) {
 		ofFill();
 		historyPlot->draw(0, getHeight(), 100, 50);
 	}
@@ -306,6 +343,8 @@ void Node::renderDynamic(bool forceAll)
 			(*it)->renderGroups();
 		}
 		else {
+
+			(*it)->drawDropShadow();
 			(*it)->draw();
 		}
 
@@ -388,7 +427,7 @@ void Node::updateSubtreePostOrder(float dt, bool forceAll)
 
 bool Node::getGlobalRenderClip()
 {
-	if (getParent() != NULL) {
+	if (getParent() != nullptr) {
 		return bClipRender || ((Node*)getParent())->getGlobalRenderClip();
 	}
 	else {
@@ -399,7 +438,7 @@ bool Node::getGlobalRenderClip()
 ofRectangle Node::getRenderClipRect()
 {
 	ofRectangle parentRect;
-	if (getParent() != NULL) {
+	if (getParent() != nullptr) {
 		parentRect = ((Node*)getParent())->getRenderClipRect();
 	}
 	ofRectangle rect;
@@ -446,7 +485,7 @@ void Node::disableScissor()
 
 void Node::setCenteredH()
 {
-    if (parent == NULL) {
+    if (parent == nullptr) {
         return;
     }
 
@@ -455,7 +494,7 @@ void Node::setCenteredH()
 
 void Node::setCenteredV()
 {
-    if (parent == NULL) {
+    if (parent == nullptr) {
         return;
     }
 
@@ -464,12 +503,44 @@ void Node::setCenteredV()
 
 void Node::setCentered()
 {
-    if (parent == NULL) {
+    if (parent == nullptr) {
         return;
     }
 
     setPosition((((Node*)parent)->getLocalWidth() - getLocalWidth())/2,
                 (((Node*)parent)->getLocalHeight() - getLocalHeight())/2);
+}
+
+void Node::drawDropShadow()
+{
+	if (effectSettings.dropShadow.size > 0) {
+		ofRectangle drawingRect = ofRectangle(
+			-effectSettings.dropShadow.size + effectSettings.dropShadow.position.x,
+			-effectSettings.dropShadow.size + effectSettings.dropShadow.position.y,
+			getWidth() + effectSettings.dropShadow.size * 2,
+			getHeight() + effectSettings.dropShadow.size * 2
+		);
+
+		if (!fboDropShadow.isAllocated()) {
+			fboDropShadow.allocate(
+				getWidth() ,//+ effectSettings.dropShadow.size * 2,
+				getHeight() //+ effectSettings.dropShadow.size * 2
+			);
+
+			fboDropShadow.begin();
+			ofClear(0, 0);
+			
+			draw();
+			fboDropShadow.end();
+			effectDropShadow.update(fboDropShadow);
+
+		}
+
+		//ofEnableBlendMode(ofBlendMode::OF_BLENDMODE_MULTIPLY);
+		effectDropShadow.update(fboDropShadow);
+		effectDropShadow.getShadow().draw(drawingRect);
+		ofEnableAlphaBlending();
+	}
 }
 
 void Node::onTouchDown(TouchEvent & event) {
@@ -550,7 +621,7 @@ void Node::touchUp(int id,  TouchEvent* event)
 #ifdef USE_OFX_HISTORY_PLOT
 	if (historyPlot) {
 		delete historyPlot;
-		historyPlot = NULL;
+		historyPlot = nullptr;
 	}
 #endif
 
@@ -619,7 +690,8 @@ ofVec3f Node::toLocal(const ofVec3f &screenPoint)
 	#ifdef GLM_SWIZZLE //this version of OF is using GLM for math ops
 	return (ofVec3f)screenPoint * glm::inverse(ofNode::getGlobalTransformMatrix());
 	#else
-	return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
+	//return (ofVec3f)screenPoint*ofNode::getGlobalTransformMatrix().getInverse();
+	return (ofVec3f)screenPoint * glm::inverse(ofNode::getGlobalTransformMatrix());
 	#endif
 }
     
@@ -661,7 +733,7 @@ void Node::setVisible(bool visible)
 
 bool Node::getVisibleGlobally() const
 {
-    if (parent == NULL) {
+    if (parent == nullptr) {
         return bVisible;
     }
     else {
@@ -702,7 +774,7 @@ void Node::setEnabled(bool enable)
 
 bool Node::getEnabledGlobally() const
 {
-    if (parent == NULL) {
+    if (parent == nullptr) {
         return bEnabled;
     }
     else {
@@ -765,14 +837,14 @@ Node* Node::removeChild(Node *child, bool bMaintainChildGlobalTransform)
 	}
 
 	ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-	return NULL;
+	return nullptr;
 }
 
 Node* Node::removeChild(int index, bool bMaintainChildGlobalTransform)
 {
 	if (index >= childNodes.size()) {
 		ofLogWarning("ofxInterface::Node::removeChild", "are you trying to remove a child that does not exist?");
-		return NULL;
+		return nullptr;
 	}
 
 	Node *child = childNodes[index];
@@ -863,7 +935,7 @@ void Node::placeNextTo(Node &comp, Node::Side side, float margin)
 	}
 }
 
-string Node::print(int depth) const
+string Node::printItem(int depth) const
 {
 	stringstream ss;
 
@@ -873,7 +945,7 @@ string Node::print(int depth) const
 	ss << depth<<"-   "<<getName()<<endl;
 
 	for (Node* node : childNodes) {
-		ss << node->print(depth+1);
+		ss << node->printItem(depth+1);
 	}
 
 	return ss.str();
@@ -920,8 +992,25 @@ ofJson Node::getNodeJson()
 	ret["isEnabled"] = getEnabled();
 	ret["isReceivingTouch"] = getReceivingTouch();
 	ret["plane"] = getPlane();
+	if (dataIsJson) {
+		auto t = static_pointer_cast<ofJson>(data);
+		ret["customData"] = *t;
+	}
+	if (childNodes.size() > 0) {
+		ret["children"] = ofJson::array();
+		for (auto& child : childNodes) {
+			ret["children"].push_back(child->getNodeJson());
+		}
+	}
+	
 	return ret;
 }
+
+ofJson Node::getNodeJsonFiltered(set<string> keys)
+{
+	return filterJsonDescription(getNodeJson(),keys);
+}
+
 
 string Node::listActiveNodes(int depth)
 {
@@ -938,6 +1027,11 @@ string Node::listActiveNodes(int depth)
 	return ret;
 }
 
+EffectSettings Node::getEffectSettings()
+{
+	return effectSettings;
+}
+
 ofJson Node::filterSceneDescription(ofJson desc, vector<string> attributes, bool onlyActiveNodes)
 {
 	ofJson ret;
@@ -952,6 +1046,31 @@ ofJson Node::filterSceneDescription(ofJson desc, vector<string> attributes, bool
 			}
 		}
 	}
+	return ret;
+}
+
+ofJson Node::filterJsonDescription(ofJson desc, set<string> keys)
+{
+	ofJson ret = ofJson();
+	bool hasChild = false;
+	for (ofJson::iterator it = desc.begin(); it != desc.end(); ++it) {
+		if (keys.find(it.key()) != keys.end()) {
+			if (it.key() == "children") {
+				hasChild = true;
+			}
+			else {
+				ret[it.key()] = it.value();
+			}
+		}
+	}
+
+	if (hasChild) {
+		ret["children"] = ofJson::array();
+		for (auto& child : desc["children"]) {
+			ret["children"].push_back(filterJsonDescription(child, keys));
+		}
+	}
+
 	return ret;
 }
 

@@ -24,6 +24,9 @@ namespace ofxInterface {
 		int borderRadius = 4;
 		int borderWidth = 1;
 
+		bool isTextureKey = false;
+		ofTexture keyTexture;
+
 	};
 
     class SoftKeyboardKey : public ModalElement {
@@ -58,6 +61,9 @@ namespace ofxInterface {
 		ofVec2f specialKeyPos;
 
 		string text = "";
+
+		bool isTextureKey = false;
+		ofTexture keyTexture;
     };
 }
 

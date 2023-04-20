@@ -7,7 +7,7 @@ namespace ofxInterface {
 	struct TextFieldSettings : NodeSettings{
 		shared_ptr<ofxFontStash2::Fonts> font;
 		string text;
-		ofAlignHorz alignment = OF_ALIGN_HORZ_LEFT;
+		ofAlignHorz horzAlignment = OF_ALIGN_HORZ_LEFT;
 	};
 
 	class TextField :
@@ -20,12 +20,14 @@ namespace ofxInterface {
         virtual void draw();
 		virtual void setup(TextFieldSettings s);
 		void setText(string text);
-		void setAlignment(ofAlignHorz alignment);
+		void setAlignment(ofAlignHorz horzAlignment);
 
     private:
 		shared_ptr<ofxFontStash2::Fonts> font;
 		string text;
-		ofAlignHorz alignment = OF_ALIGN_HORZ_LEFT;
+		ofAlignHorz horzAlignment = OF_ALIGN_HORZ_LEFT;
+		
+		ofFbo alignmentRenderFbo;
 	};
 }
 

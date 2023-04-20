@@ -19,6 +19,8 @@ namespace ofxInterface {
 		 key = s.key;
 		 borderRadius = s.borderRadius;
 		 borderWidth = s.borderWidth;
+		 isTextureKey = s.isTextureKey;
+		 keyTexture = s.keyTexture;
 
 
 		 // draw paths
@@ -92,15 +94,21 @@ namespace ofxInterface {
 
 		fillPath.draw();
         
-        
-        //center text
-        ofRectangle r = font->getTextBounds(text, style,0,0);
-		// hack to reduce line height to glyph height
-		r.y += r.height*0.25;
-		r.height *= 0.6;
+		if (!isTextureKey) {
+			//center text
+			ofRectangle r = font->getTextBounds(text, style, 0, 0);
+			// hack to reduce line height to glyph height
+			r.y += r.height * 0.25;
+			r.height *= 0.6;
 
-		font->draw(text,style, (getWidth()-r.width)/2, 0.5*(getHeight() - r.height) - r.y);
-		specialKeyPath.draw(specialKeyPos.x, specialKeyPos.y);
+			font->draw(text, style, (getWidth() - r.width) / 2, 0.5 * (getHeight() - r.height) - r.y);
+			specialKeyPath.draw(specialKeyPos.x, specialKeyPos.y);
+		}
+		else {
+			ofSetColor(style.color);
+			keyTexture.draw(0, 0, getWidth(), getHeight());
+		}
+        
         
     }
     
@@ -129,7 +137,7 @@ namespace ofxInterface {
 
 		float glyphHeight = font->getTextBounds("X", style, 0, 0).height*0.6;
 		float glyphCurveRadius = borderRadius * 0.5;
-		float glyphStroke = 1.0;
+		float glyphStroke = borderWidth * 2;
 
 		if (key == 252) {
 			text = "ü";
@@ -162,14 +170,15 @@ namespace ofxInterface {
 			text = "Return";
 		}
 		else if (key == 8) { // backspace
+
 			text = "";
 			specialKeyPath.setColor(style.color);
 			specialKeyPath.setArcResolution(50);
-			// other path
-			specialKeyPath.moveTo(glyphHeight *24.0/18.0 - glyphCurveRadius, 0);
-			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphCurveRadius), glyphCurveRadius, glyphCurveRadius, 270, 0); // rightTop
-			specialKeyPath.lineTo(glyphHeight *24.0 / 18.0, glyphHeight - glyphCurveRadius);
-			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphHeight - glyphCurveRadius), glyphCurveRadius, glyphCurveRadius, 0, 90); // rightBottom
+			// outher path
+			specialKeyPath.moveTo(glyphHeight *24.0/18.0 - borderRadius, 0);
+			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - borderRadius, borderRadius), borderRadius, borderRadius, 270, 0); // rightTop
+			specialKeyPath.lineTo(glyphHeight *24.0 / 18.0, glyphHeight - borderRadius);
+			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - borderRadius, glyphHeight - borderRadius), borderRadius, borderRadius, 0, 90); // rightBottom
 			specialKeyPath.lineTo(glyphHeight *9.0 / 18.0, glyphHeight);
 			specialKeyPath.arc(ofVec2f(glyphHeight *9.0 / 18.0 - glyphCurveRadius, glyphHeight - glyphCurveRadius), glyphCurveRadius, glyphCurveRadius, 90, 135); // leftBottom
 			specialKeyPath.lineTo(glyphCurveRadius * 0.5, 9.0/18.0*glyphHeight + glyphCurveRadius);
@@ -181,34 +190,36 @@ namespace ofxInterface {
 			// inner path
 			specialKeyPath.moveTo(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphStroke);
 			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphCurveRadius), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 270, 0); // rightTop
+			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphCurveRadius), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 270, 0); // rightTop
 			specialKeyPath.lineTo(glyphHeight *24.0 / 18.0 - glyphStroke, glyphHeight - glyphCurveRadius);
 			specialKeyPath.arc(ofVec2f(glyphHeight *24.0 / 18.0 - glyphCurveRadius, glyphHeight - glyphCurveRadius), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 0, 90); // rightBottom
 			specialKeyPath.lineTo(glyphHeight *9.0 / 18.0, glyphHeight - glyphStroke);
 			specialKeyPath.arc(ofVec2f(glyphHeight *9.0 / 18.0 - glyphCurveRadius, glyphHeight - glyphCurveRadius), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 90, 135); // leftBottom
 			specialKeyPath.lineTo(glyphCurveRadius * 0.5 + glyphStroke*0.924, 9.0 / 18.0*glyphHeight + glyphCurveRadius);
 			specialKeyPath.arc(ofVec2f(glyphCurveRadius, 9.0 / 18.0*glyphHeight), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 135, 225); // left
-			specialKeyPath.lineTo(9.0 / 18.0*glyphHeight - 1.924*glyphCurveRadius, glyphCurveRadius * 0.383 + glyphStroke);
+			specialKeyPath.lineTo(9.0 / 18.0 * glyphHeight - 1.8 * glyphCurveRadius, glyphCurveRadius * 0.383 + glyphStroke);
 			specialKeyPath.arc(ofVec2f(9.0 / 18.0*glyphHeight - glyphCurveRadius, glyphCurveRadius), glyphCurveRadius - glyphStroke, glyphCurveRadius - glyphStroke, 225, 270); // leftTop
 			specialKeyPath.close();
 			
 			// x
-			float glyphStrokeD = sqrt(glyphStroke*glyphStroke * 2);
+			int glyphStrokeX = glyphStroke * 0.5;
+			float glyphStrokeD = sqrt(glyphStrokeX*glyphStrokeX * 2);
 			specialKeyPath.moveTo(glyphHeight *15.0 / 18.0 - glyphStrokeD, glyphHeight *9.0 / 18.0);
-			specialKeyPath.lineTo(glyphHeight *12.0 / 18.0 - glyphStroke * 0.383, glyphHeight *12.0 / 18.0 -glyphStroke * 0.924);
-			specialKeyPath.arcNegative(ofVec2f(glyphHeight *12.0 / 18.0, glyphHeight *12.0 / 18.0), glyphStroke, glyphStroke, 225, 45); // leftBottom
+			specialKeyPath.lineTo(glyphHeight *12.0 / 18.0 - glyphStrokeX * 0.383, glyphHeight *12.0 / 18.0 -glyphStrokeX * 0.924);
+			specialKeyPath.arcNegative(ofVec2f(glyphHeight *12.0 / 18.0, glyphHeight *12.0 / 18.0), glyphStrokeX, glyphStrokeX, 225, 45); // leftBottom
 			specialKeyPath.lineTo(glyphHeight *15.0 / 18.0, glyphHeight *9.0 / 18.0 + glyphStrokeD);
-			specialKeyPath.lineTo(glyphHeight *18.0 / 18.0 - glyphStroke * 0.383, glyphHeight *12.0 / 18.0 + glyphStroke * 0.924);
-			specialKeyPath.arcNegative(ofVec2f(glyphHeight *18.0 / 18.0, glyphHeight *12.0 / 18.0), glyphStroke, glyphStroke, 135, 315); // rightBottom
+			specialKeyPath.lineTo(glyphHeight *18.0 / 18.0 - glyphStrokeX * 0.383, glyphHeight *12.0 / 18.0 + glyphStrokeX * 0.924);
+			specialKeyPath.arcNegative(ofVec2f(glyphHeight *18.0 / 18.0, glyphHeight *12.0 / 18.0), glyphStrokeX, glyphStrokeX, 135, 315); // rightBottom
 			specialKeyPath.lineTo(glyphHeight *15.0 / 18.0 + glyphStrokeD, glyphHeight *9.0 / 18.0);
-			specialKeyPath.lineTo(glyphHeight *18.0 / 18.0 + glyphStroke * 0.383, glyphHeight *6.0 / 18.0 +glyphStroke * 0.924);
-			specialKeyPath.arcNegative(ofVec2f(glyphHeight *18.0 / 18.0, glyphHeight *6.0 / 18.0), glyphStroke, glyphStroke, 45, 225); // rightTop
+			specialKeyPath.lineTo(glyphHeight *18.0 / 18.0 + glyphStrokeX * 0.383, glyphHeight *6.0 / 18.0 +glyphStrokeX * 0.924);
+			specialKeyPath.arcNegative(ofVec2f(glyphHeight *18.0 / 18.0, glyphHeight *6.0 / 18.0), glyphStrokeX, glyphStrokeX, 45, 225); // rightTop
 			specialKeyPath.lineTo(glyphHeight *15.0 / 18.0 , glyphHeight *9.0 / 18.0 - glyphStrokeD);
-			specialKeyPath.lineTo(glyphHeight *12.0 / 18.0 + glyphStroke * 0.383, glyphHeight *6.0 / 18.0 - glyphStroke * 0.924);
-			specialKeyPath.arcNegative(ofVec2f(glyphHeight *12.0 / 18.0 , glyphHeight *6.0 / 18.0), glyphStroke, glyphStroke, 315, 135); // leftTop
+			specialKeyPath.lineTo(glyphHeight *12.0 / 18.0 + glyphStrokeX * 0.383, glyphHeight *6.0 / 18.0 - glyphStrokeX * 0.924);
+			specialKeyPath.arcNegative(ofVec2f(glyphHeight *12.0 / 18.0 , glyphHeight *6.0 / 18.0), glyphStrokeX, glyphStrokeX, 315, 135); // leftTop
 			specialKeyPath.close();
 			
 			float wGlyph = glyphHeight * 12 / 9.0;
-			specialKeyPos = ofVec2f(0.5*(getWidth() - wGlyph), 0.5*(getHeight() - glyphHeight));
+			specialKeyPos = ofVec2f(0.48*(getWidth() - wGlyph), 0.5*(getHeight() - glyphHeight));
 		}
 		else if (key == 769) {
 			text = "strg";
@@ -261,6 +272,9 @@ namespace ofxInterface {
 			float wGlyph = glyphHeight * 10 / 9.0;
 			specialKeyPos = ofVec2f(0.5*(getWidth() - wGlyph), 0.5*(getHeight() - glyphHeight));
 			
+		}
+		else if (key == 94) { //roof 
+		text = "^";
 		}
 		else if (key == 356) { //left
 			text = "<-";

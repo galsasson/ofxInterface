@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "Node.h"
+#include "GradientShader.h"
 
 namespace ofxInterface {
 	struct ColorPanelSettings : NodeSettings{
@@ -10,8 +11,10 @@ namespace ofxInterface {
 		bool bDrawBackground = true;
 		float borderRadius = 0;
 
-		ofColor bgColor = ofColor(0);
+		vector<ofColor> colors = {ofColor(0)};
 		ofColor strokeColor = ofColor(0);
+		float gradientDirection = 0;
+		vector<float> gradientColorPositions;
 	};
 
 	class ColorPanel : public ofxInterface::Node
@@ -19,11 +22,12 @@ namespace ofxInterface {
 	public:
 		void setup(ofColor color, float w, float h);
 		void setup(ColorPanelSettings settings);
+		virtual Node* clone() override;
 
 		void draw();
 
 		ofColor getColor();
-		void setColor(const ofColor& c) { bgColor = c; }
+		void setColor(const ofColor& c) { colors[0] = c; shape.setFillColor(c); }
 
 		ofColor getStrokeColor();
 		void setStrokeColor(const ofColor& c);
@@ -37,13 +41,27 @@ namespace ofxInterface {
 		float getRoundedEdge();
 		void setRoundedEdge(float ang);
 
+		void onNodeSizeChanged(Node& n);
+
 	protected:
+		void initShape();
+		ofVec2f angleToBorderPoint(float angle);
+		ofVec2f angleToDirVector(float angle);
+
 		float borderWidth;
 		bool bDrawBackground = true;
-		float roundAngle;
+		float borderRadius;
 
-		ofColor bgColor;
+		vector<ofColor> colors;
 		ofColor strokeColor;
+		float gradientDirection;
+		vector<float> gradientColorPositions;
+
+		ofPath shape;
+		ofPath outline;
+
+		vector<ofShader> shader;
+		ofFbo fbo;
 	};
 
 }   

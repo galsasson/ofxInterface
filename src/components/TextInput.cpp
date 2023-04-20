@@ -1,4 +1,12 @@
 #include "TextInput.h"
+#include "NodeToJsonHelper.h"
+
+ofxInterface::TextInput::~TextInput()
+{
+	for (auto& e : keyInputs) {
+		ofRemoveListener(e, this, &TextInput::keyPressed);
+	}
+}
 
 void ofxInterface::TextInput::setup(TextInputSettings settings)
 {
@@ -12,7 +20,7 @@ void ofxInterface::TextInput::setup(TextInputSettings settings)
 	styleInactive = style;
 	styleInactive.color = colorInactive;
 	enableNewline = settings.enableNewline;
-	alignment = settings.alignment;
+	horzAlignment = settings.horzAlignment;
 	autoResize = settings.autoResize;
 
 	if (autoResize) {
@@ -35,11 +43,11 @@ void ofxInterface::TextInput::draw()
 	}
 	// draw content
 	if (content.get().size() == 0) {
-		font->drawColumn(descriptionText, styleInactive, 0, dy, getWidth(), alignment);
+		font->drawColumn(descriptionText, styleInactive, 0, dy, getWidth(), horzAlignment);
 		//font->draw(descriptionText, styleInactive, 0, dy);
 	}else {
 		//font->draw(content, style, 0, dy);
-		font->drawColumn(content, style, 0, dy, getWidth(), alignment);
+		font->drawColumn(content, style, 0, dy, getWidth(), horzAlignment);
 	}
 
 	// draw index pointer
@@ -49,7 +57,7 @@ void ofxInterface::TextInput::draw()
 			vector<ofxFontStash2::StyledText> blocks;
 			blocks.emplace_back(ofxFontStash2::StyledText({ content.get().substr(0, indexPointer), style }));
 			vector<ofxFontStash2::StyledLine> lines;
-			font->layoutLines(blocks, getWidth(), lines, alignment, 0);
+			font->layoutLines(blocks, getWidth(), lines, horzAlignment, 0);
 
 			int wLine = 0;
 			if (lines.size() > 0) {
@@ -57,10 +65,10 @@ void ofxInterface::TextInput::draw()
 				if (lines.back().elements.size() > 0) {
 					wLine += lines.back().elements.front().x;
 				}
-				else if (alignment == OF_ALIGN_HORZ_CENTER) {
+				else if (horzAlignment == OF_ALIGN_HORZ_CENTER) {
 					wLine = getWidth()*0.5;
 				}
-				else if (alignment == OF_ALIGN_HORZ_RIGHT) {
+				else if (horzAlignment == OF_ALIGN_HORZ_RIGHT) {
 					wLine = getWidth();
 				}
 			}
@@ -166,6 +174,7 @@ void ofxInterface::TextInput::keyPressed(ofKeyEventArgs & e)
 				{
 					in += "€";
 				}
+				
 				else { in += e.key; }
 
 				if (indexPointer < content->size()) {
@@ -205,7 +214,8 @@ void ofxInterface::TextInput::setSize(float w, float h)
 {
 	// resize font if external resizing
 	if (autoResize) {
-		float newFontSize = style.fontSize * (w/getWidth());
+		// scale to int to reduce jitter while scaling
+		int newFontSize = style.fontSize * (w/getWidth());
 		style.fontSize = newFontSize;
 		styleInactive.fontSize = newFontSize;
 		resizeField();
@@ -222,10 +232,10 @@ void ofxInterface::TextInput::setSize(const ofVec2f & s)
 
 void ofxInterface::TextInput::setAlignment(ofAlignHorz alignment_)
 {
-	alignment = alignment_;
+	horzAlignment = alignment_;
 }
 
-void ofxInterface::TextInput::setFontId(string fontId)
+void ofxInterface::TextInput::setFont(string fontId)
 {
 	style.fontID = fontId;
 	styleInactive.fontID = fontId;
@@ -241,11 +251,13 @@ void ofxInterface::TextInput::setColor(ofColor main, ofColor inactive)
 void ofxInterface::TextInput::registerKeyInput(ofEvent<ofKeyEventArgs>& e)
 {
 	ofAddListener(e, this, &TextInput::keyPressed);
+	keyInputs.push_back(e);
 }
 
 void ofxInterface::TextInput::unregisterKeyInput(ofEvent<ofKeyEventArgs> & e)
 {
 	ofRemoveListener(e, this, &TextInput::keyPressed);
+		
 }
 
 void ofxInterface::TextInput::onTouchDown(TouchEvent & event)
@@ -258,6 +270,37 @@ void ofxInterface::TextInput::onTouchMove(TouchEvent & event)
 	setIndexPosition(event.position - getPosition());
 }
 
+ofxFontStash2::Style ofxInterface::TextInput::getFontStyle()
+{
+	return style;
+}
+
+ofJson ofxInterface::TextInput::getNodeJson()
+{
+	auto ret = ModalElement::getNodeJson();
+	ret["nodeType"] = "TextInput";
+	ret["maxChars"] = maxChars;
+	ret["descriptionText"] = descriptionText;
+	ret["enableNewline"] = enableNewline;
+	ret["autoResize"] = autoResize;
+
+	switch (horzAlignment) {
+	case OF_ALIGN_HORZ_LEFT:
+		ret["alignment"] = "left";
+		break;
+	case OF_ALIGN_HORZ_CENTER:
+		ret["alignment"] = "center";
+		break;
+	default:
+		ret["alignment"] = "right";
+		break;
+	}
+	ret["text"] = content.get();
+	ret["style"] = reddo::NodeToJson::styleToJson(style);
+	return ret;
+
+}
+
 void ofxInterface::TextInput::sendContentChanged(string content)
 {
 	string send = content;
@@ -266,7 +309,7 @@ void ofxInterface::TextInput::sendContentChanged(string content)
 		resizeField();
 	}
 
-	ofNotifyEvent(contentChangedEvent, send);
+	ofNotifyEvent(eventContentChanged, send);
 }
 
 void ofxInterface::TextInput::setIndexPosition(ofVec2f touch)
@@ -291,12 +334,12 @@ void ofxInterface::TextInput::setIndexPosition(ofVec2f touch)
 
 void ofxInterface::TextInput::resizeField()
 {
-	string text = content.get().size() > 0 ? content : descriptionText;
+	string text = content.get().size() > 0 ? content.get() : descriptionText;
 	auto baseRect = font->getTextBounds("X", style, 0, 0);
 	float dy = -baseRect.y - baseRect.height*0.75;
 
 	if (enableNewline) {
-		dy = -baseRect.y;
+		//dy = -baseRect.y;
 	}
 
 	int w = 0;

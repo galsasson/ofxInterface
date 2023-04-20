@@ -14,6 +14,7 @@ namespace ofxInterface {
 	{
 		colorActive = mom.colorActive;
 		colorSelected = mom.colorSelected;
+		colorInactive = mom.colorInactive;
 		type = mom.type;
 		isSelected = mom.isSelected.get();
 		isSelected.addListener(this, &ModalElement::onStateChanged);
@@ -100,6 +101,29 @@ namespace ofxInterface {
 
 	ModalType ModalElement::getModalType() {
 		return type;
+	}
+
+	ofJson ModalElement::getNodeJson()
+	{
+		auto ret = Node::getNodeJson();
+		ret["nodeType"] = "ModalElement";
+		
+		switch (type) {
+		case BUTTON:
+			ret["modalType"] = "Button";
+			break;
+		case CHECKER:
+			ret["modalType"] = "Checker";
+			break;
+		case RADIO:
+			ret["modalType"] = "Radio";
+			break;
+		}
+		ret["colorActive"] = vector<int>{ colorActive.r,colorActive.g,colorActive.b,colorActive.a };
+		ret["colorSelected"] = vector<int>{ colorSelected.r,colorSelected.g,colorSelected.b,colorSelected.a };
+		ret["colorInactive"] = vector<int>{ colorInactive.r,colorInactive.g,colorInactive.b,colorInactive.a };
+		
+		return ret;
 	}
 
 }

@@ -30,6 +30,8 @@ namespace ofxInterface {
 
 		string layout = "de";
 
+		map<int, ofTexture> textureKeys;
+
 	};
 
 
@@ -68,11 +70,13 @@ protected:
 	int borderRadius;
 
 	int wKey;
+	int hKey;
 	int margin;
 	int padding;
 	int borderWidth;
 
 	ofPath borderPath;
+	map<int, ofTexture> textureKeys;
 
 private:
     
